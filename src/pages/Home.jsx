@@ -1,9 +1,9 @@
 import LoginForm from "@/components/LoginForm";
-import { AuthContext } from "../context/AuthContext";
-import { useContext } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const { isLoggedIn, user } = useContext(AuthContext);
+  const { isLoggedIn, user, logoutUser } = useAuth();
   console.log(user);
   return (
     <>
@@ -16,6 +16,9 @@ export default function Home() {
             <p className="text-lg">
               Explore the Hunters section to see all members.
             </p>
+            <Button onClick={logoutUser} variant="destructive" className="mt-6">
+              Logout
+            </Button>
           </div>
         ) : (
           <LoginForm />

@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Login
   const loginUser = async (username, password) => {
     const response = await fetch("http://localhost:8000/api/token/", {
       method: "POST",
@@ -77,6 +78,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout
   const logoutUser = () => {
     setAuthTokens(null);
     setUser(null);
