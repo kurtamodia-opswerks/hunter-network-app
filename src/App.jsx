@@ -1,10 +1,16 @@
-import { Button } from "@/components/ui/button";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Hunters from "./pages/Hunters";
 
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="hunters" element={<Hunters />} />
+      </Route>
+    </Routes>
   );
 }
 
