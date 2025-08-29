@@ -1,4 +1,5 @@
 import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 export default function Hunters() {
   const authFetch = useAuthFetch();
   const [hunters, setHunters] = useState([]);
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
     const loadHunters = async () => {
@@ -25,48 +27,57 @@ export default function Hunters() {
         console.error("Failed to load hunters");
       }
     };
-    loadHunters();
-  }, []);
+    if (isLoggedIn) loadHunters();
+  }, [isLoggedIn]);
 
   return (
-    <div className="space-y-4">
-      {/* <Button onClick={loadHunters}>Load Hunters</Button> */}
+    <>
+      {isLoggedIn ? (
+        <div className="space-y-4">
+          {/* <Button onClick={loadHunters}>Load Hunters</Button> */}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {hunters.map((hunter) => (
-          <Card key={hunter.id} className="shadow-md">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{hunter.full_name} </CardTitle>
-                {/* Badge for rank */}
-                {hunter.guild && <Badge>{hunter.guild_name}</Badge>}
-                <Badge
-                  variant={
-                    hunter.rank === "S"
-                      ? "destructive"
-                      : hunter.rank === "A"
-                      ? "secondary"
-                      : "outline"
-                  }
-                >
-                  {hunter.rank_display}
-                </Badge>
-              </div>
-              <CardDescription>{hunter.email}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p>
-                Power Level:{" "}
-                <span className="font-medium">{hunter.power_level}</span>
-              </p>
-              <p>
-                Raid Count:{" "}
-                <span className="font-medium">{hunter.raid_count}</span>
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {hunters.map((hunter) => (
+              <Card key={hunter.id} className="shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{hunter.full_name} </CardTitle>
+                    {/* Badge for rank */}
+                    {hunter.guild && <Badge>{hunter.guild_name}</Badge>}
+                    <Badge
+                      variant={
+                        hunter.rank === "S"
+                          ? "destructive"
+                          : hunter.rank === "A"
+                          ? "secondary"
+                          : "outline"
+                      }
+                    >
+                      {hunter.rank_display}
+                    </Badge>
+                  </div>
+                  <CardDescription>{hunter.email}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p>
+                    Power Level:{" "}
+                    <span className="font-medium">{hunter.power_level}</span>
+                  </p>
+                  <p>
+                    Raid Count:{" "}
+                    <span className="font-medium">{hunter.raid_count}</span>
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">You are not logged in</h2>
+          <p className="text-lg">Please log in to view the Hunters section.</p>
+        </div>
+      )}
+    </>
   );
 }
