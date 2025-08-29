@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     first_name: "",
@@ -125,7 +127,11 @@ export default function RegisterForm() {
                 </Button>
               </CardAction>
               <CardAction>
-                <Button type="button" variant="outline">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/")}
+                >
                   Cancel
                 </Button>
               </CardAction>
