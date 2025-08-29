@@ -5,6 +5,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import DarkModeToggle from "./DarkModeToggle";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
@@ -54,6 +55,9 @@ export default function Navbar() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
     </>
   );
 }

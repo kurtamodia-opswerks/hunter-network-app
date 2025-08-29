@@ -1,4 +1,5 @@
 import { useAuthFetch } from "../hooks/useAuthFetch";
+import { Button } from "@/components/ui/button";
 
 export default function Hunters() {
   const authFetch = useAuthFetch();
@@ -11,5 +12,5 @@ export default function Hunters() {
     }
   };
 
-  return <button onClick={loadHunters}>Load Hunters</button>;
+  return <Button onClick={loadHunters}>Load Hunters</Button>;
 }
