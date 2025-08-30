@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
@@ -44,10 +45,17 @@ export default function RegisterForm() {
 
       const data = await response.json();
       console.log("User registered:", data);
-      alert("Registration successful!");
+
+      // Show success toast
+      toast.success("Registered Successfully!");
+
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (err) {
       console.error(err);
-      alert("Registration failed");
+      toast.error("Registration failed!");
     }
   };
 
