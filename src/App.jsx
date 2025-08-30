@@ -6,6 +6,8 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Guilds from "./pages/Guilds";
 import Raids from "./pages/Raids";
+import Dungeons from "./pages/Dungeons";
+import Skills from "./pages/Skills";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/hunters" element={<Hunters />} />
         <Route path="/guilds" element={<Guilds />} />
         <Route path="/raids" element={<Raids />} />
+        <Route path="/dungeons" element={<Dungeons />} />
+        <Route path="/skills" element={<Skills />} />
       </Route>
     </Routes>
   );

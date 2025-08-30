@@ -54,7 +54,15 @@ export default function Navbar() {
               asChild
               className={navigationMenuTriggerStyle()}
             >
-              <Link to="/raid-participations">Raid Participations</Link>
+              <Link to="/dungeons">Dungeons</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              asChild
+              className={navigationMenuTriggerStyle()}
+            >
+              <Link to="/skills">Skills</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
