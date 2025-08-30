@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SquarePen, Trash } from "lucide-react";
+import EditHunterForm from "@/components/EditHunterForm";
 
 export default function Hunters() {
   const authFetch = useAuthFetch();
   const [hunters, setHunters] = useState([]);
   const { isLoggedIn, user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(() => user?.is_admin || false);
+  const [editingHunter, setEditingHunter] = useState(null);
 
   useEffect(() => {
     const loadHunters = async () => {
@@ -76,7 +78,11 @@ export default function Hunters() {
                   {isAdmin && user && (
                     <div className="admin-buttons flex space-x-2">
                       {" "}
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingHunter(hunter)}
+                      >
                         <SquarePen />
                       </Button>
                       <Button variant="outline" size="sm">
@@ -87,6 +93,18 @@ export default function Hunters() {
                 </CardContent>
               </Card>
             ))}
+
+            {editingHunter && (
+              <EditHunterForm
+                hunter={editingHunter}
+                onClose={() => setEditingHunter(null)}
+                onUpdated={(updated) => {
+                  setHunters((prev) =>
+                    prev.map((h) => (h.id === updated.id ? updated : h))
+                  );
+                }}
+              />
+            )}
           </div>
         </div>
       ) : (
