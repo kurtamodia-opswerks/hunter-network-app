@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function HunterSkeleton() {
+export default function LoadingSkeleton() {
   return (
     <Card className="shadow-md animate-pulse">
       <CardHeader>

@@ -2,7 +2,7 @@ import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import HunterCard from "@/components/HunterCard";
-import HunterSkeleton from "@/components/HunterSkeleton";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import EditHunterForm from "@/components/EditHunterForm";
 import { toast } from "sonner";
 
@@ -54,7 +54,7 @@ export default function Hunters() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {loading
               ? Array.from({ length: 6 }).map((_, idx) => (
-                  <HunterSkeleton key={idx} />
+                  <LoadingSkeleton key={idx} />
                 ))
               : hunters.map((hunter) => (
                   <HunterCard
