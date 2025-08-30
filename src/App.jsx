@@ -5,6 +5,7 @@ import Hunters from "./pages/Hunters";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Guilds from "./pages/Guilds";
+import Raids from "./pages/Raids";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/hunters" element={<Hunters />} />
         <Route path="/guilds" element={<Guilds />} />
+        <Route path="/raids" element={<Raids />} />
       </Route>
     </Routes>
   );
