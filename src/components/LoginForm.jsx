@@ -14,10 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { loginUser } = useAuth(); // ✅ from AuthProvider
+  const { loginUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,10 @@ export default function LoginForm() {
     setLoading(false);
 
     if (success) {
-      navigate("/hunters"); // redirect after login success
+      toast.success("Login successful!");
+      navigate("/hunters");
+    } else {
+      toast.error("Invalid username or password");
     }
   };
 

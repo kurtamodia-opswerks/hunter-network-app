@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuthFetch } from "../hooks/useAuthFetch";
+import { toast } from "sonner";
 
 export default function EditHunterForm({ hunter, onClose, onUpdated }) {
   const authFetch = useAuthFetch();
@@ -89,12 +90,11 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Ensure guild/skills are valid
       const payload = {
         ...formData,
-        password: formData.password || hunter.password, // only send if changed
+        password: formData.password || hunter.password,
         guild: formData.guild ? Number(formData.guild) : null,
-        skills: formData.skills.map((s) => Number(s)), // ensure ids are integers
+        skills: formData.skills.map((s) => Number(s)),
       };
       console.log("Submitting payload:", payload);
 
@@ -110,10 +110,11 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
       if (!response.ok) throw new Error("Failed to update hunter");
       const data = await response.json();
       if (onUpdated) onUpdated(data);
+      toast.success("Hunter updated successfully");
       onClose();
     } catch (err) {
       console.error(err);
-      alert("Update failed");
+      toast.error("Error updating hunter");
     }
   };
 

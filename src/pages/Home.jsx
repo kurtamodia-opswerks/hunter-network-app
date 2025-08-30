@@ -1,11 +1,33 @@
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/LoginForm";
 import { useTheme } from "../context/ThemeContext";
 
+// shadcn/ui AlertDialog imports
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+
 export default function Home() {
   const { isLoggedIn, user, logoutUser } = useAuth();
   const { theme } = useTheme();
+  const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+
+  const handleLogout = () => {
+    logoutUser();
+    toast.success("You have logged out successfully");
+    setOpenLogoutDialog(false);
+  };
 
   return (
     <div className="relative w-full min-h-screen flex justify-center items-center">
@@ -44,18 +66,40 @@ export default function Home() {
                 <p className="text-lg">
                   Explore the Hunters section to see all members.
                 </p>
-                <Button
-                  onClick={logoutUser}
-                  variant="destructive"
-                  className="mt-6"
+
+                {/* Logout button with AlertDialog */}
+                <AlertDialog
+                  open={openLogoutDialog}
+                  onOpenChange={setOpenLogoutDialog}
                 >
-                  Logout
-                </Button>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="mt-6">
+                      Logout
+                    </Button>
+                  </AlertDialogTrigger>
+
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to log out? You will need to log
+                        in again to access your account.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleLogout}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        Logout
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             ) : (
-              <div>
-                <LoginForm />
-              </div>
+              <LoginForm />
             )}
           </div>
         </div>
