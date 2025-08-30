@@ -10,11 +10,13 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SquarePen, Trash } from "lucide-react";
 
 export default function Hunters() {
   const authFetch = useAuthFetch();
   const [hunters, setHunters] = useState([]);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(() => user?.is_admin || false);
 
   useEffect(() => {
     const loadHunters = async () => {
@@ -58,15 +60,30 @@ export default function Hunters() {
                   </div>
                   <CardDescription>{hunter.email}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <p>
-                    Power Level:{" "}
-                    <span className="font-medium">{hunter.power_level}</span>
-                  </p>
-                  <p>
-                    Raid Count:{" "}
-                    <span className="font-medium">{hunter.raid_count}</span>
-                  </p>
+                <CardContent className="space-y-2 flex flex-row justify-between items-center">
+                  <div className="content-div">
+                    {" "}
+                    <p>
+                      Power Level:{" "}
+                      <span className="font-medium">{hunter.power_level}</span>
+                    </p>
+                    <p>
+                      Raid Count:{" "}
+                      <span className="font-medium">{hunter.raid_count}</span>
+                    </p>
+                  </div>
+                  {/* Edit and Delete buttons */}
+                  {isAdmin && user && (
+                    <div className="admin-buttons flex space-x-2">
+                      {" "}
+                      <Button variant="outline" size="sm">
+                        <SquarePen />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash className="text-red-400" />
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
