@@ -56,7 +56,7 @@ export default function UserGuilds() {
   return (
     <div className="space-y-4">
       {/* Filters Row */}
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-2 md:items-center md:justify-between">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-2 md:items-center md:justify-between">
         <Input
           placeholder="Search guilds..."
           value={search}
@@ -82,7 +82,7 @@ export default function UserGuilds() {
       </div>
 
       {/* Guilds Grid */}
-      <div className="max-w-5xl mx-auto grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="max-w-6xl mx-auto grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading
           ? Array.from({ length: 6 }).map((_, idx) => (
               <LoadingSkeleton key={idx} />
