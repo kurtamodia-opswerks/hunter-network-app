@@ -11,11 +11,19 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export default function RaidParticipationForm({ raidId, onClose, onAdded }) {
+export default function RaidParticipationForm({
+  raidId,
+  participation,
+  onClose,
+  onAdded,
+  onUpdated,
+}) {
   const authFetch = useAuthFetch();
   const [hunters, setHunters] = useState([]);
-  const [selectedHunter, setSelectedHunter] = useState("");
-  const [role, setRole] = useState("Tank");
+  const [selectedHunter, setSelectedHunter] = useState(
+    participation ? String(participation.hunter_id) : ""
+  );
+  const [role, setRole] = useState(participation ? participation.role : "Tank");
 
   // Fetch hunters for dropdown
   useEffect(() => {
@@ -41,22 +49,32 @@ export default function RaidParticipationForm({ raidId, onClose, onAdded }) {
       role,
     };
 
-    const res = await authFetch(
-      "http://localhost:8000/api/raid-participations/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    let url = "http://localhost:8000/api/raid-participations/";
+    let method = "POST";
+
+    if (participation) {
+      url += `${participation.id}/`;
+      method = "PUT";
+    }
+
+    const res = await authFetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     if (res.ok) {
-      const newParticipation = await res.json();
-      toast.success("Participation added successfully!");
-      onAdded(newParticipation);
+      const data = await res.json();
+      if (participation) {
+        toast.success("Participation updated successfully!");
+        onUpdated(data);
+      } else {
+        toast.success("Participation added successfully!");
+        onAdded(data);
+      }
       onClose();
     } else {
-      toast.error("Failed to add participation");
+      toast.error("Failed to save participation");
     }
   };
 
@@ -101,7 +119,7 @@ export default function RaidParticipationForm({ raidId, onClose, onAdded }) {
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit">Add</Button>
+        <Button type="submit">{participation ? "Update" : "Add"}</Button>
       </div>
     </form>
   );

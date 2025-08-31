@@ -1,7 +1,7 @@
 // src/pages/Guilds.jsx
 import { useAuth } from "../context/AuthContext";
-import AdminGuilds from "@/components/subpages/AdminGuilds";
-import UserGuilds from "@/components/subpages/UserGuilds";
+import AdminGuilds from "@/components/guild/AdminGuilds";
+import UserGuilds from "@/components/guild/UserGuilds";
 
 export default function Guilds() {
   const { isLoggedIn, user } = useAuth();

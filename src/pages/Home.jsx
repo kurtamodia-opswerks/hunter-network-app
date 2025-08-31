@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { GalleryVerticalEnd } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/LoginForm";
-import { useTheme } from "../context/ThemeContext";
-
-// shadcn/ui AlertDialog imports
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -17,6 +15,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Home() {
   const { isLoggedIn, user, logoutUser } = useAuth();
@@ -30,60 +29,42 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full min-h-screen flex justify-center items-center">
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-60"
-        style={{
-          backgroundImage:
-            theme === "light"
-              ? "url('/light-mode-bg.png')"
-              : "url('/dark-mode-bg.png')",
-        }}
-      ></div>
+    <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Left side */}
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Hunter Network
+          </a>
+        </div>
 
-      {/* Overlay content */}
-      <div className="relative z-10 home-container w-full h-screen flex items-center justify-center">
-        <div className="flex flex-col md:flex-row items-center justify-between w-11/12 max-w-8xl">
-          {/* Left side text */}
-          <div className="w-full md:w-1/2 text-center md:text-left p-6">
-            <h1 className="text-4xl font-bold mb-4">
-              Welcome to Hunter Network
-            </h1>
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Connect with fellow hunters, share your skills, and explore the
-              network. Join us to become part of an amazing community.
-            </p>
-          </div>
-
-          {/* Right side content */}
-          <div className="w-full md:w-1/2 flex justify-center items-center">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
             {isLoggedIn ? (
-              <div className="text-center bg-white dark:bg-black p-8 rounded-2xl shadow-lg w-full max-w-md">
-                <h1 className="text-3xl font-bold mb-4">
+              <div className="text-center bg-white dark:bg-black p-6 rounded-xl shadow-lg">
+                <h1 className="text-xl font-bold mb-2">
                   Welcome back, {user.username}!
                 </h1>
-                <p className="text-lg">
+                <p className="text-sm text-muted-foreground">
                   Explore the Hunters section to see all members.
                 </p>
-
-                {/* Logout button with AlertDialog */}
                 <AlertDialog
                   open={openLogoutDialog}
                   onOpenChange={setOpenLogoutDialog}
                 >
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="mt-6">
+                    <Button variant="destructive" className="mt-4 w-full">
                       Logout
                     </Button>
                   </AlertDialogTrigger>
-
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to log out? You will need to log
-                        in again to access your account.
+                        Are you sure you want to log out?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -103,6 +84,15 @@ export default function Home() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Right side image */}
+      <div className="bg-muted relative hidden lg:block">
+        <img
+          src={theme === "light" ? "/light-mode-bg.png" : "/dark-mode-bg.png"}
+          alt="Background"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
       </div>
     </div>
   );

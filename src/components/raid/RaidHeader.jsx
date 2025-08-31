@@ -10,7 +10,7 @@ export default function RaidHeader({ raid }) {
         <Badge
           variant={raid.dungeon_info.rank === "S" ? "destructive" : "outline"}
         >
-          {raid.dungeon_info.rank}
+          {raid.dungeon_info.rank_display}
         </Badge>
       </div>
       <CardDescription>{raid.date}</CardDescription>

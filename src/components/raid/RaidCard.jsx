@@ -15,6 +15,7 @@ export default function RaidCard({
   onEdit,
   onDelete,
   setDeletingRaid,
+  readOnly = false,
 }) {
   const { user } = useAuth();
   const authFetch = useAuthFetch();
@@ -89,26 +90,29 @@ export default function RaidCard({
       <RaidHeader raid={raid} />
       <RaidInfo raid={raid} />
 
-      <div className="flex space-x-2 mt-3 p-4">
-        <RaidParticipations
-          participations={participations}
-          setParticipations={setParticipations}
-          raidId={raid.id}
-          isAdmin={isAdmin}
-        />
+      {/* Only show actions if not readOnly */}
+      {!readOnly && (
+        <div className="flex space-x-2 mt-3 p-4">
+          <RaidParticipations
+            participations={participations}
+            setParticipations={setParticipations}
+            raidId={raid.id}
+            isAdmin={isAdmin}
+          />
 
-        <RaidActions
-          raid={raid}
-          isAdmin={isAdmin}
-          userParticipation={userParticipation}
-          loadingAction={loadingAction}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          setDeletingRaid={setDeletingRaid}
-          handleJoinRaid={handleJoinRaid}
-          handleLeaveRaid={handleLeaveRaid}
-        />
-      </div>
+          <RaidActions
+            raid={raid}
+            isAdmin={isAdmin}
+            userParticipation={userParticipation}
+            loadingAction={loadingAction}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            setDeletingRaid={setDeletingRaid}
+            handleJoinRaid={handleJoinRaid}
+            handleLeaveRaid={handleLeaveRaid}
+          />
+        </div>
+      )}
     </Card>
   );
 }

@@ -8,8 +8,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, SquarePen, Trash } from "lucide-react";
 import RaidParticipationForm from "./RaidParticipationForm";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
+import { toast } from "sonner";
 
 export default function RaidParticipations({
   participations,
@@ -18,6 +20,26 @@ export default function RaidParticipations({
   isAdmin,
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingParticipation, setEditingParticipation] = useState(null);
+  const authFetch = useAuthFetch();
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await authFetch(
+        `http://localhost:8000/api/raid-participations/${id}/`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        setParticipations((prev) => prev.filter((p) => p.id !== id));
+        toast.success("Participation deleted");
+      } else {
+        toast.error("Failed to delete participation");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error deleting participation");
+    }
+  };
 
   return (
     <Sheet>
@@ -27,17 +49,40 @@ export default function RaidParticipations({
           Participations
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[400px]">
+      <SheetContent side="right" className="w-[400px] p-4">
         <SheetHeader>
           <SheetTitle>Participations</SheetTitle>
         </SheetHeader>
 
-        {!showAddForm ? (
+        {!showAddForm && !editingParticipation ? (
           <>
-            <ul className="list-disc ml-5 mt-4 space-y-2">
+            <ul className="mt-4 space-y-2">
               {participations.map((h) => (
-                <li key={h.id}>
-                  {h.full_name} ({h.hunter_rank} - {h.role})
+                <li
+                  key={h.id}
+                  className="flex justify-between items-center border-b pb-1"
+                >
+                  <span>
+                    {h.full_name} ({h.hunter_rank} - {h.role})
+                  </span>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setEditingParticipation(h)}
+                      >
+                        <SquarePen className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(h.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -51,8 +96,17 @@ export default function RaidParticipations({
         ) : (
           <RaidParticipationForm
             raidId={raidId}
-            onClose={() => setShowAddForm(false)}
+            participation={editingParticipation} // pass if editing
+            onClose={() => {
+              setShowAddForm(false);
+              setEditingParticipation(null);
+            }}
             onAdded={(newP) => setParticipations((prev) => [...prev, newP])}
+            onUpdated={(updatedP) =>
+              setParticipations((prev) =>
+                prev.map((p) => (p.id === updatedP.id ? updatedP : p))
+              )
+            }
           />
         )}
       </SheetContent>
