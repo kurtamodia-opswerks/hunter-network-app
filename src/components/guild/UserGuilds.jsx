@@ -11,10 +11,13 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import LeaderGuildButton from "@/components/guild/LeaderGuildButton";
 
 export default function UserGuilds() {
   const authFetch = useAuthFetch();
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin;
   const [guilds, setGuilds] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,10 +77,7 @@ export default function UserGuilds() {
               <SelectItem value="-founded_date">Founded (Newest)</SelectItem>
             </SelectContent>
           </Select>
-
-          <Button variant="outline" onClick={loadGuilds}>
-            Refresh
-          </Button>
+          {!isAdmin && <LeaderGuildButton userId={user.user_id} />}
         </div>
       </div>
 
