@@ -28,6 +28,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import RaidParticipationForm from "./RaidParticipationForm";
+import { useAuth } from "@/context/AuthContext";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { toast } from "sonner";
 
 export default function RaidCard({
   raid,
@@ -36,10 +39,50 @@ export default function RaidCard({
   onDelete,
   setDeletingRaid,
 }) {
+  const { user } = useAuth();
+  const authFetch = useAuthFetch();
+
   const [participations, setParticipations] = useState(
     raid.participations_info || []
   );
   const [showAddForm, setShowAddForm] = useState(false);
+  const [joining, setJoining] = useState(false);
+
+  const handleJoinRaid = async () => {
+    if (!user) return toast.error("You must be logged in to join a raid.");
+    console.log("Joining raid:", raid.id);
+    console.log("User:", user.user_id);
+
+    setJoining(true);
+    try {
+      const response = await authFetch(
+        "http://localhost:8000/api/raid-participations/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            raid: raid.id,
+            hunter: user.user_id,
+            role: "DPS",
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const newParticipation = await response.json();
+        setParticipations((prev) => [...prev, newParticipation]);
+        toast.success("You joined the raid!");
+      } else if (response.status === 400) {
+        toast.error("You have already joined this raid.");
+      } else {
+        toast.error("Failed to join the raid.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while joining.");
+    }
+    setJoining(false);
+  };
 
   return (
     <Card className="shadow-md">
@@ -96,10 +139,15 @@ export default function RaidCard({
                       </li>
                     ))}
                   </ul>
-                  <Button className="mt-4" onClick={() => setShowAddForm(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Participation
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      className="mt-4"
+                      onClick={() => setShowAddForm(true)}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Participation
+                    </Button>
+                  )}
                 </>
               ) : (
                 <RaidParticipationForm
@@ -113,8 +161,8 @@ export default function RaidCard({
             </SheetContent>
           </Sheet>
 
-          {/* Admin actions */}
-          {isAdmin && (
+          {/* Admin actions OR Join button */}
+          {isAdmin ? (
             <>
               {/* Edit */}
               <Button variant="outline" size="sm" onClick={() => onEdit(raid)}>
@@ -155,6 +203,10 @@ export default function RaidCard({
                 </AlertDialogContent>
               </AlertDialog>
             </>
+          ) : (
+            <Button size="sm" onClick={handleJoinRaid} disabled={joining}>
+              {joining ? "Joining..." : "Join Raid"}
+            </Button>
           )}
         </div>
       </CardContent>

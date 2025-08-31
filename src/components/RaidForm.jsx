@@ -20,7 +20,6 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
   const [dungeon, setDungeon] = useState(raid?.dungeon || "");
   const [date, setDate] = useState(raid?.date || "");
   const [success, setSuccess] = useState(raid?.success || false);
-  const [teamStrength, setTeamStrength] = useState(raid?.team_strength || "");
 
   // Dropdown data
   const [dungeons, setDungeons] = useState([]);
