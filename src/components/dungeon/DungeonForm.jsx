@@ -102,7 +102,9 @@ export default function DungeonForm({
       {/* Open Checkbox */}
       <div className="flex items-center space-x-2">
         <Checkbox id="is_open" checked={isOpen} onCheckedChange={setIsOpen} />
-        <Label htmlFor="is_open">Open</Label>
+        <Label htmlFor="is_open" className="!mb-0">
+          Open
+        </Label>
       </div>
 
       {/* Actions */}
