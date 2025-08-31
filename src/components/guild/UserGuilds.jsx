@@ -1,8 +1,3 @@
-// src/components/UserGuilds.jsx
-import { useAuthFetch } from "../../hooks/useAuthFetch";
-import { useEffect, useState } from "react";
-import GuildCard from "@/components/guild/GuildCard";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,48 +6,20 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuth } from "@/context/AuthContext";
+import GuildCard from "@/components/guild/GuildCard";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import LeaderGuildButton from "@/components/guild/LeaderGuildButton";
 
-export default function UserGuilds() {
-  const authFetch = useAuthFetch();
-  const { user } = useAuth();
-  const isAdmin = user?.is_admin;
-  const [guilds, setGuilds] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // search + filters
-  const [search, setSearch] = useState("");
-  const [ordering, setOrdering] = useState("name"); // default sort
-
-  // Fetch guilds
-  const loadGuilds = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (ordering) params.append("ordering", ordering);
-      const response = await authFetch(
-        `http://localhost:8000/api/guilds/?${params.toString()}`,
-        { cache: "no-store" }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setGuilds(data);
-      } else {
-        console.error("Failed to load guilds");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadGuilds();
-  }, [search, ordering]);
-
+export default function UserGuilds({
+  guilds,
+  loading,
+  search,
+  setSearch,
+  ordering,
+  setOrdering,
+  userId,
+  isAdmin,
+}) {
   return (
     <div className="space-y-4">
       {/* Filters Row */}
@@ -80,7 +47,7 @@ export default function UserGuilds() {
         </div>
 
         <div className="flex gap-2">
-          {!isAdmin && <LeaderGuildButton userId={user.user_id} />}
+          {!isAdmin && <LeaderGuildButton userId={userId} />}
         </div>
       </div>
 

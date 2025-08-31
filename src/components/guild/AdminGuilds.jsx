@@ -1,6 +1,4 @@
-// src/components/AdminGuilds.jsx
-import { useAuthFetch } from "../../hooks/useAuthFetch";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import GuildForm from "@/components/guild/GuildForm";
@@ -20,46 +18,21 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
 
-export default function AdminGuilds() {
+export default function AdminGuilds({
+  guilds,
+  setGuilds,
+  loading,
+  search,
+  setSearch,
+  ordering,
+  setOrdering,
+}) {
   const authFetch = useAuthFetch();
-  const [guilds, setGuilds] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editingGuild, setEditingGuild] = useState(null);
   const [creatingGuild, setCreatingGuild] = useState(false);
   const [deletingGuild, setDeletingGuild] = useState(null);
-
-  // Search & ordering
-  const [search, setSearch] = useState("");
-  const [ordering, setOrdering] = useState("");
-
-  const loadGuilds = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search); // DRF search param
-      if (ordering) params.append("ordering", ordering); // DRF ordering param
-
-      const response = await authFetch(
-        `http://localhost:8000/api/guilds/?${params.toString()}`,
-        { cache: "no-store" }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setGuilds(data);
-      } else {
-        toast.error("Failed to load guilds");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error fetching guilds");
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadGuilds();
-  }, [search, ordering]);
 
   const handleDelete = async (guildId) => {
     const response = await authFetch(
@@ -86,7 +59,6 @@ export default function AdminGuilds() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-
         <Select value={ordering} onValueChange={setOrdering}>
           <SelectTrigger>
             <SelectValue placeholder="Sort by" />
@@ -100,7 +72,7 @@ export default function AdminGuilds() {
         </Select>
       </div>
 
-      {/* Guild Grid */}
+      {/* Guilds Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading
           ? Array.from({ length: 6 }).map((_, idx) => (
