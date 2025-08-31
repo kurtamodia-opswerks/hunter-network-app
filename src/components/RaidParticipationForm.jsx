@@ -75,7 +75,7 @@ export default function RaidParticipationForm({ raidId, onClose, onAdded }) {
           <SelectContent>
             {hunters.map((h) => (
               <SelectItem key={h.id} value={String(h.id)}>
-                {h.full_name} ({h.hunter_rank})
+                {h.full_name} ({h.rank_display})
               </SelectItem>
             ))}
           </SelectContent>

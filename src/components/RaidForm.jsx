@@ -109,7 +109,7 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
           <SelectContent>
             {dungeons.map((d) => (
               <SelectItem key={d.id} value={String(d.id)}>
-                {d.name} ({d.rank})
+                {d.name} ({d.rank_display})
               </SelectItem>
             ))}
           </SelectContent>

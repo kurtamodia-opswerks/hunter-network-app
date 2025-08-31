@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { useAuthFetch } from "../hooks/useAuthFetch";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -19,126 +12,108 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 
 export default function DungeonForm({
+  mode = "create",
   dungeon,
   onClose,
-  onUpdated,
-  onCreated,
+  onSaved,
 }) {
   const authFetch = useAuthFetch();
 
-  const [formData, setFormData] = useState({
-    name: dungeon?.name || "",
-    rank: dungeon?.rank || "E",
-    location: dungeon?.location || "",
-    is_open: dungeon?.is_open ?? true,
-  });
+  const [name, setName] = useState(dungeon?.name || "");
+  const [rank, setRank] = useState(dungeon?.rank || "E");
+  const [location, setLocation] = useState(dungeon?.location || "");
+  const [isOpen, setIsOpen] = useState(dungeon?.is_open ?? true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const method = dungeon ? "PUT" : "POST";
-    const url = dungeon
-      ? `http://localhost:8000/api/dungeons/${dungeon.id}/`
-      : "http://localhost:8000/api/dungeons/";
+    const payload = { name, rank, location, is_open: isOpen };
+
+    const url =
+      mode === "edit"
+        ? `http://localhost:8000/api/dungeons/${dungeon.id}/`
+        : "http://localhost:8000/api/dungeons/";
+
+    const method = mode === "edit" ? "PUT" : "POST";
 
     const response = await authFetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
 
     if (response.ok) {
-      const data = await response.json();
-      if (dungeon) {
-        onUpdated?.(data);
-        toast.success("Dungeon updated successfully");
-      } else {
-        onCreated?.(data);
-        toast.success("Dungeon created successfully");
-      }
+      const savedDungeon = await response.json();
+      onSaved(savedDungeon);
+      toast.success(
+        mode === "edit"
+          ? "Dungeon updated successfully!"
+          : "Dungeon created successfully!"
+      );
       onClose();
     } else {
-      toast.error("Failed to save dungeon");
+      toast.error(`Failed to ${mode === "edit" ? "update" : "create"} dungeon`);
     }
   };
 
   return (
-    <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>{dungeon ? "Edit Dungeon" : "Add Dungeon"}</SheetTitle>
-          <SheetDescription>
-            {dungeon
-              ? "Update the dungeon details below."
-              : "Fill out the form to create a new dungeon."}
-          </SheetDescription>
-        </SheetHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              required
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Name */}
+      <div>
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
 
-          <div>
-            <Label htmlFor="rank">Rank</Label>
-            <Select
-              value={formData.rank}
-              onValueChange={(val) => setFormData({ ...formData, rank: val })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Rank" />
-              </SelectTrigger>
-              <SelectContent>
-                {["S", "A", "B", "C", "D", "E"].map((rank) => (
-                  <SelectItem key={rank} value={rank}>
-                    {rank}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Rank */}
+      <div>
+        <Label htmlFor="rank">Rank</Label>
+        <Select value={rank} onValueChange={(val) => setRank(val)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Rank" />
+          </SelectTrigger>
+          <SelectContent>
+            {["S", "A", "B", "C", "D", "E"].map((r) => (
+              <SelectItem key={r} value={r}>
+                {r}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
-              }
-              required
-            />
-          </div>
+      {/* Location */}
+      <div>
+        <Label htmlFor="location">Location</Label>
+        <Input
+          id="location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          required
+        />
+      </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="is_open"
-              checked={formData.is_open}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, is_open: checked })
-              }
-            />
-            <Label htmlFor="is_open">Open</Label>
-          </div>
+      {/* Open Checkbox */}
+      <div className="flex items-center space-x-2">
+        <Checkbox id="is_open" checked={isOpen} onCheckedChange={setIsOpen} />
+        <Label htmlFor="is_open">Open</Label>
+      </div>
 
-          <SheetFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">{dungeon ? "Save Changes" : "Create"}</Button>
-          </SheetFooter>
-        </form>
-      </SheetContent>
-    </Sheet>
+      {/* Actions */}
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          {mode === "edit" ? "Save Changes" : "Create"}
+        </Button>
+      </div>
+    </form>
   );
 }
