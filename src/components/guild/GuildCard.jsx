@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,9 +27,10 @@ export default function GuildCard({
   isAdmin,
   onEdit,
   onDelete,
-  deletingGuild,
   setDeletingGuild,
 }) {
+  const navigate = useNavigate();
+
   return (
     <Card className="shadow-md">
       <CardHeader>
@@ -37,7 +40,8 @@ export default function GuildCard({
         </div>
         <CardDescription>Founded: {guild.founded_date}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 flex flex-col">
+
+      <CardContent className="flex flex-col space-y-2">
         <p>
           Leader:{" "}
           <span className="font-medium">
@@ -45,14 +49,13 @@ export default function GuildCard({
           </span>{" "}
           ({guild.leader_display?.rank_display})
         </p>
-        <p className="text-sm font-medium">Members:</p>
-        <ul className="list-disc ml-5">
-          {guild.members.map((m) => (
-            <li key={m.id}>
-              {m.full_name} ({m.rank_display})
-            </li>
-          ))}
-        </ul>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate(`/guilds/${guild.id}`)}
+        >
+          View Guild Page
+        </Button>
 
         {isAdmin && (
           <div className="flex space-x-2 mt-3">
