@@ -12,6 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminRaids() {
   const authFetch = useAuthFetch();
@@ -22,24 +30,36 @@ export default function AdminRaids() {
   const [creatingRaid, setCreatingRaid] = useState(false);
   const [deletingRaid, setDeletingRaid] = useState(null);
 
+  // Search & ordering
+  const [search, setSearch] = useState("");
+  const [ordering, setOrdering] = useState("");
+
   // Load raids
   const loadRaids = async () => {
     setLoadingRaids(true);
     try {
-      const res = await authFetch("http://localhost:8000/api/raids/", {
-        cache: "no-store",
-      });
+      const params = new URLSearchParams();
+      if (search) params.append("search", search); // DRF search
+      if (ordering) params.append("ordering", ordering); // DRF ordering
+
+      const res = await authFetch(
+        `http://localhost:8000/api/raids/?${params.toString()}`,
+        {
+          cache: "no-store",
+        }
+      );
       if (res.ok) setRaids(await res.json());
+      else toast.error("Failed to load raids");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load raids");
+      toast.error("Error fetching raids");
     }
     setLoadingRaids(false);
   };
 
   useEffect(() => {
     loadRaids();
-  }, []);
+  }, [search, ordering]);
 
   const handleDelete = async (raidId) => {
     const response = await authFetch(
@@ -58,10 +78,32 @@ export default function AdminRaids() {
   };
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4 max-w-6xl mx-auto">
       <Button onClick={() => setCreatingRaid(true)}>+ Create Raid</Button>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
+      {/* Search & Sort */}
+      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mb-4">
+        <Input
+          placeholder="Search by raid name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <Select value={ordering} onValueChange={setOrdering}>
+          <SelectTrigger>
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name">Name ↑</SelectItem>
+            <SelectItem value="-name">Name ↓</SelectItem>
+            <SelectItem value="date">Date ↑</SelectItem>
+            <SelectItem value="-date">Date ↓</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Raid Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loadingRaids
           ? Array.from({ length: 6 }).map((_, idx) => (
               <LoadingSkeleton key={idx} />

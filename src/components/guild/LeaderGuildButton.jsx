@@ -1,37 +1,34 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export default function LeaderGuildButton({ userId }) {
+export default function LeaderGuildButton() {
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
-  const [leaderGuild, setLeaderGuild] = useState(null);
+  const { user } = useAuth();
+  const [guildId, setGuildId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLeaderGuild = async () => {
+    const fetchGuildIfLeader = async () => {
+      if (!user?.is_leader) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
-        const userRes = await authFetch(
-          `http://localhost:8000/api/hunters/${userId}/`
+        // Assuming the API provides a guild by leader endpoint or filter
+        const res = await authFetch(
+          `http://localhost:8000/api/guilds/?leader=${user.user_id}`
         );
-        if (!userRes.ok) throw new Error("Failed to fetch user info");
-        const userData = await userRes.json();
-
-        if (userData.guild) {
-          const guildRes = await authFetch(
-            `http://localhost:8000/api/guilds/${userData.guild}/`
-          );
-          if (!guildRes.ok) throw new Error("Failed to fetch guild info");
-          const guildData = await guildRes.json();
-
-          if (guildData.leader_display?.id === Number(userId)) {
-            setLeaderGuild(guildData);
-          }
-        }
+        if (!res.ok) throw new Error("Failed to fetch guild info");
+        const data = await res.json();
+        if (data.length > 0) setGuildId(data[0].id);
       } catch (err) {
         console.error(err);
         toast.error(err.message);
@@ -40,17 +37,14 @@ export default function LeaderGuildButton({ userId }) {
       }
     };
 
-    fetchLeaderGuild();
-  }, [userId]);
+    fetchGuildIfLeader();
+  }, [user]);
 
-  if (!leaderGuild && !loading) return null;
+  if (!user?.is_leader || (!guildId && !loading)) return null;
 
   return (
     <div className="text-center">
-      <Button
-        onClick={() => navigate(`/guilds/${leaderGuild?.id}`)}
-        disabled={loading}
-      >
+      <Button onClick={() => navigate(`/guilds/${guildId}`)} disabled={loading}>
         {loading ? (
           <span className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" />

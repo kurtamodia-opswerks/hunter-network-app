@@ -25,11 +25,18 @@ export default function GuildForm({
   const [foundedDate, setFoundedDate] = useState(guild?.founded_date || "");
   const [hunters, setHunters] = useState([]);
 
-  // Fetch hunters for dropdown
+  // Fetch hunters
   useEffect(() => {
     const fetchHunters = async () => {
       try {
-        const res = await authFetch("http://localhost:8000/api/hunters/");
+        let url = "http://localhost:8000/api/hunters/";
+
+        if (mode === "edit" && guild?.id) {
+          // Only fetch hunters who are members of this guild
+          url += `?guild=${guild.id}`;
+        }
+
+        const res = await authFetch(url);
         if (res.ok) {
           const data = await res.json();
           setHunters(data);
@@ -38,8 +45,9 @@ export default function GuildForm({
         console.error("Failed to fetch hunters:", err);
       }
     };
+
     fetchHunters();
-  }, [authFetch]);
+  }, [authFetch, mode, guild]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

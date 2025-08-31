@@ -12,6 +12,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminGuilds() {
   const authFetch = useAuthFetch();
@@ -21,28 +29,37 @@ export default function AdminGuilds() {
   const [creatingGuild, setCreatingGuild] = useState(false);
   const [deletingGuild, setDeletingGuild] = useState(null);
 
-  // Fetch guilds
+  // Search & ordering
+  const [search, setSearch] = useState("");
+  const [ordering, setOrdering] = useState("");
+
   const loadGuilds = async () => {
     setLoading(true);
     try {
-      const response = await authFetch("http://localhost:8000/api/guilds/", {
-        cache: "no-store",
-      });
+      const params = new URLSearchParams();
+      if (search) params.append("search", search); // DRF search param
+      if (ordering) params.append("ordering", ordering); // DRF ordering param
+
+      const response = await authFetch(
+        `http://localhost:8000/api/guilds/?${params.toString()}`,
+        { cache: "no-store" }
+      );
       if (response.ok) {
         const data = await response.json();
         setGuilds(data);
       } else {
-        console.error("Failed to load guilds");
+        toast.error("Failed to load guilds");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Error fetching guilds");
     }
     setLoading(false);
   };
 
   useEffect(() => {
     loadGuilds();
-  }, []);
+  }, [search, ordering]);
 
   const handleDelete = async (guildId) => {
     const response = await authFetch(
@@ -59,9 +76,31 @@ export default function AdminGuilds() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-6xl mx-auto">
       <Button onClick={() => setCreatingGuild(true)}>+ Create Guild</Button>
 
+      {/* Search & Sort */}
+      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mb-4">
+        <Input
+          placeholder="Search by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <Select value={ordering} onValueChange={setOrdering}>
+          <SelectTrigger>
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name">Name ↑</SelectItem>
+            <SelectItem value="-name">Name ↓</SelectItem>
+            <SelectItem value="founded_date">Founded ↑</SelectItem>
+            <SelectItem value="-founded_date">Founded ↓</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Guild Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading
           ? Array.from({ length: 6 }).map((_, idx) => (
@@ -80,7 +119,7 @@ export default function AdminGuilds() {
             ))}
       </div>
 
-      {/* Edit guild modal */}
+      {/* Edit Guild Modal */}
       {editingGuild && (
         <Dialog
           open={!!editingGuild}
@@ -104,7 +143,7 @@ export default function AdminGuilds() {
         </Dialog>
       )}
 
-      {/* Create guild modal */}
+      {/* Create Guild Modal */}
       {creatingGuild && (
         <Dialog
           open={creatingGuild}

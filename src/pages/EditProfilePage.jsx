@@ -131,8 +131,12 @@ export default function EditProfilePage() {
         }
       );
 
-      if (!verifyRes.ok) throw new Error("Incorrect password");
+      if (!verifyRes.ok) throw new Error("Failed to verify password");
 
+      const verifyData = await verifyRes.json();
+      if (!verifyData.valid) throw new Error("Incorrect password");
+
+      // Proceed to update profile
       const payload = {
         ...formData,
         password: formData.password || undefined,

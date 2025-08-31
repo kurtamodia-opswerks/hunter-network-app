@@ -37,7 +37,7 @@ export default function GuildMemberSheet({ guildId, onClose, onSaved }) {
       }
     };
     loadHunters();
-  }, [authFetch]);
+  }, []);
 
   const handleSave = async () => {
     if (!selectedHunterId) return toast.error("Please select a hunter.");

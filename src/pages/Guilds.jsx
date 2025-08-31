@@ -3,11 +3,11 @@ import { useState } from "react";
 
 import AdminGuilds from "@/components/guild/AdminGuilds";
 import UserGuilds from "@/components/guild/UserGuilds";
-import LeaderGuildButton from "@/components/guild/LeaderGuildButton";
 
 export default function Guilds() {
   const { isLoggedIn, user } = useAuth();
   const isAdmin = user?.is_admin || false;
+  console.log(user);
 
   if (!isLoggedIn) {
     return (
