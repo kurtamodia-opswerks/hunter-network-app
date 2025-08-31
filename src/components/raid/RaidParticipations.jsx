@@ -97,6 +97,7 @@ export default function RaidParticipations({
           <RaidParticipationForm
             raidId={raidId}
             participation={editingParticipation} // pass if editing
+            participations={participations}
             onClose={() => {
               setShowAddForm(false);
               setEditingParticipation(null);

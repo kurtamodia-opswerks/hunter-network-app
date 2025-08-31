@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import RaidCard from "@/components/raid/RaidCard";
@@ -21,52 +20,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function AdminRaids() {
-  const authFetch = useAuthFetch();
-
-  const [raids, setRaids] = useState([]);
-  const [loadingRaids, setLoadingRaids] = useState(true);
+export default function AdminRaids({
+  raids,
+  setRaids,
+  loadingRaids,
+  search,
+  setSearch,
+  ordering,
+  setOrdering,
+  authFetch,
+}) {
   const [editingRaid, setEditingRaid] = useState(null);
   const [creatingRaid, setCreatingRaid] = useState(false);
   const [deletingRaid, setDeletingRaid] = useState(null);
 
-  // Search & ordering
-  const [search, setSearch] = useState("");
-  const [ordering, setOrdering] = useState("");
-
-  // Load raids
-  const loadRaids = async () => {
-    setLoadingRaids(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search); // DRF search
-      if (ordering) params.append("ordering", ordering); // DRF ordering
-
-      const res = await authFetch(
-        `http://localhost:8000/api/raids/?${params.toString()}`,
-        {
-          cache: "no-store",
-        }
-      );
-      if (res.ok) setRaids(await res.json());
-      else toast.error("Failed to load raids");
-    } catch (err) {
-      console.error(err);
-      toast.error("Error fetching raids");
-    }
-    setLoadingRaids(false);
-  };
-
-  useEffect(() => {
-    loadRaids();
-  }, [search, ordering]);
-
   const handleDelete = async (raidId) => {
     const response = await authFetch(
       `http://localhost:8000/api/raids/${raidId}/`,
-      {
-        method: "DELETE",
-      }
+      { method: "DELETE" }
     );
     if (response.ok) {
       setRaids((prev) => prev.filter((r) => r.id !== raidId));
@@ -88,7 +59,6 @@ export default function AdminRaids() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-
         <Select value={ordering} onValueChange={setOrdering}>
           <SelectTrigger>
             <SelectValue placeholder="Sort by" />
@@ -120,7 +90,7 @@ export default function AdminRaids() {
             ))}
       </div>
 
-      {/* Edit Raid Modal */}
+      {/* Modals */}
       {editingRaid && (
         <Dialog open={!!editingRaid} onOpenChange={() => setEditingRaid(null)}>
           <DialogContent>
@@ -140,8 +110,6 @@ export default function AdminRaids() {
           </DialogContent>
         </Dialog>
       )}
-
-      {/* Create Raid Modal */}
       {creatingRaid && (
         <Dialog open={creatingRaid} onOpenChange={() => setCreatingRaid(false)}>
           <DialogContent>

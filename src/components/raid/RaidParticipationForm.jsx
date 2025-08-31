@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 export default function RaidParticipationForm({
   raidId,
   participation,
+  participations = [], // pass the current participations as a prop
   onClose,
   onAdded,
   onUpdated,
@@ -25,20 +26,32 @@ export default function RaidParticipationForm({
   );
   const [role, setRole] = useState(participation ? participation.role : "Tank");
 
-  // Fetch hunters for dropdown
+  // Fetch all hunters
   useEffect(() => {
     const fetchHunters = async () => {
       try {
         const res = await authFetch("http://localhost:8000/api/hunters/");
         if (res.ok) {
-          setHunters(await res.json());
+          const allHunters = await res.json();
+
+          // Exclude hunters already in this raid
+          const filteredHunters = allHunters.filter(
+            (h) =>
+              !participations.some(
+                (p) =>
+                  p.hunter_id === h.id &&
+                  (!participation || p.id !== participation.id)
+              )
+          );
+
+          setHunters(filteredHunters);
         }
       } catch (err) {
         console.error("Failed to fetch hunters:", err);
       }
     };
     fetchHunters();
-  }, [authFetch]);
+  }, [participations, participation]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,11 +104,17 @@ export default function RaidParticipationForm({
             <SelectValue placeholder="Select hunter" />
           </SelectTrigger>
           <SelectContent>
-            {hunters.map((h) => (
-              <SelectItem key={h.id} value={String(h.id)}>
-                {h.full_name} ({h.rank_display})
+            {hunters.length > 0 ? (
+              hunters.map((h) => (
+                <SelectItem key={h.id} value={String(h.id)}>
+                  {h.full_name} ({h.rank_display})
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="#" disabled>
+                No available hunters
               </SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
       </div>
