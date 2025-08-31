@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuthFetch } from "../../hooks/useAuthFetch";
-import HunterCard from "@/components/HunterCard";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
+import HunterCard from "@/components/hunter/HunterCard";
 
 export default function UserHunters() {
   const authFetch = useAuthFetch();

@@ -1,9 +1,9 @@
 // src/components/AdminGuilds.jsx
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { useEffect, useState } from "react";
-import GuildCard from "@/components/GuildCard";
+import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import GuildForm from "@/components/GuildForm";
+import GuildForm from "@/components/guild/GuildForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

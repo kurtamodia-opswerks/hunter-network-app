@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {

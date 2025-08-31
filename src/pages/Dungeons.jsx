@@ -1,8 +1,8 @@
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import DungeonCard from "@/components/DungeonCard";
-import DungeonForm from "@/components/DungeonForm";
+import DungeonCard from "@/components/dungeon/DungeonCard";
+import DungeonForm from "@/components/dungeon/DungeonForm";
 import { Button } from "@/components/ui/button";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {

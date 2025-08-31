@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";
 
 export default function EditHunterForm({ hunter, onClose, onUpdated }) {

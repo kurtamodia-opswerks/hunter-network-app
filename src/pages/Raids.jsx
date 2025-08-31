@@ -1,8 +1,8 @@
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import RaidCard from "@/components/RaidCard";
-import RaidForm from "@/components/RaidForm";
+import RaidCard from "@/components/raid/RaidCard";
+import RaidForm from "@/components/raid/RaidForm";
 import LoadingSkeleton from "@/components/LoadingSkeleton"; // <-- new
 import { Button } from "@/components/ui/button";
 import {

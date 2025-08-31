@@ -1,10 +1,10 @@
 // src/components/AdminHunters.jsx
-import { useAuthFetch } from "../../hooks/useAuthFetch";
-import { useAuth } from "../../context/AuthContext";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
-import HunterCard from "@/components/HunterCard";
+import HunterCard from "@/components/hunter/HunterCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import EditHunterForm from "@/components/EditHunterForm";
+import EditHunterForm from "@/components/hunter/EditHunterForm";
 import { toast } from "sonner";
 
 export default function AdminHunters() {

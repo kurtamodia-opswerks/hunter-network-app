@@ -1,7 +1,7 @@
 // src/components/UserGuilds.jsx
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { useEffect, useState } from "react";
-import GuildCard from "@/components/GuildCard";
+import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,8 +29,6 @@ export default function UserGuilds() {
       const params = new URLSearchParams();
       if (search) params.append("search", search);
       if (ordering) params.append("ordering", ordering);
-      if (leader) params.append("leader", leader);
-
       const response = await authFetch(
         `http://localhost:8000/api/guilds/?${params.toString()}`,
         { cache: "no-store" }
@@ -50,7 +48,7 @@ export default function UserGuilds() {
 
   useEffect(() => {
     loadGuilds();
-  }, [search, ordering, leader]);
+  }, [search, ordering]);
 
   return (
     <div className="space-y-4">
