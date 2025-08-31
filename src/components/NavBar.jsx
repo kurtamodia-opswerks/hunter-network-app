@@ -7,13 +7,20 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DarkModeToggle from "./DarkModeToggle";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { GalleryVerticalEnd } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
   const { isLoggedIn, user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -76,10 +83,19 @@ export default function Navbar() {
 
       <div className="absolute top-4 right-4 flex items-center space-x-4">
         {isLoggedIn && user && (
-          <Avatar>
-            <AvatarImage src="" />
-            <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar>
+                <AvatarImage src="" />
+                <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate("/profile/edit")}>
+                Edit Profile
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
         <DarkModeToggle />
       </div>
