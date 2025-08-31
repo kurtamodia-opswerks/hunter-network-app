@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import DungeonCard from "@/components/DungeonCard";
 import DungeonForm from "@/components/DungeonForm";
 import { Button } from "@/components/ui/button";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {
   Dialog,
   DialogContent,
@@ -69,7 +70,9 @@ export default function Dungeons() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {loading
-              ? "Loading..."
+              ? Array.from({ length: 6 }).map((_, idx) => (
+                  <LoadingSkeleton key={idx} />
+                ))
               : dungeons.map((d) => (
                   <DungeonCard
                     key={d.id}

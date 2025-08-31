@@ -1,145 +1,20 @@
-import { useAuthFetch } from "../hooks/useAuthFetch";
+// src/pages/Guilds.jsx
 import { useAuth } from "../context/AuthContext";
-import { useEffect, useState } from "react";
-import GuildCard from "@/components/GuildCard";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
-import GuildForm from "@/components/GuildForm";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+import AdminGuilds from "@/components/subpages/AdminGuilds";
+import UserGuilds from "@/components/subpages/UserGuilds";
 
 export default function Guilds() {
-  const authFetch = useAuthFetch();
   const { isLoggedIn, user } = useAuth();
-  const [guilds, setGuilds] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingGuild, setEditingGuild] = useState(null);
-  const [creatingGuild, setCreatingGuild] = useState(false);
-  const [deletingGuild, setDeletingGuild] = useState(null);
-
   const isAdmin = user?.is_admin || false;
 
-  // Fetch guilds
-  const loadGuilds = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch("http://localhost:8000/api/guilds/", {
-        cache: "no-store",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setGuilds(data);
-      } else {
-        console.error("Failed to load guilds");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (isLoggedIn) loadGuilds();
-  }, [isLoggedIn]);
-
-  const handleDelete = async (guildId) => {
-    const response = await authFetch(
-      `http://localhost:8000/api/guilds/${guildId}/`,
-      { method: "DELETE" }
+  if (!isLoggedIn) {
+    return (
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold mb-4">You are not logged in</h2>
+        <p className="text-lg">Please log in to view the Guilds section.</p>
+      </div>
     );
-    if (response.ok) {
-      setGuilds((prev) => prev.filter((g) => g.id !== guildId));
-      toast.success("Guild deleted successfully");
-    } else {
-      toast.error("Failed to delete guild");
-    }
-    setDeletingGuild(null);
-  };
+  }
 
-  return (
-    <>
-      {isLoggedIn ? (
-        <div className="space-y-4">
-          {isAdmin && (
-            <Button onClick={() => setCreatingGuild(true)}>
-              + Create Guild
-            </Button>
-          )}
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {loading
-              ? Array.from({ length: 6 }).map((_, idx) => (
-                  <LoadingSkeleton key={idx} />
-                ))
-              : guilds.map((guild) => (
-                  <GuildCard
-                    key={guild.id}
-                    guild={guild}
-                    isAdmin={isAdmin}
-                    onEdit={setEditingGuild}
-                    onDelete={handleDelete}
-                    deletingGuild={deletingGuild}
-                    setDeletingGuild={setDeletingGuild}
-                  />
-                ))}
-          </div>
-
-          {/* Edit guild modal */}
-          {editingGuild && (
-            <Dialog
-              open={!!editingGuild}
-              onOpenChange={() => setEditingGuild(null)}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit Guild</DialogTitle>
-                </DialogHeader>
-                <GuildForm
-                  mode="edit"
-                  guild={editingGuild}
-                  onClose={() => setEditingGuild(null)}
-                  onSaved={(updated) =>
-                    setGuilds((prev) =>
-                      prev.map((g) => (g.id === updated.id ? updated : g))
-                    )
-                  }
-                />
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {/* Create guild modal */}
-          {creatingGuild && (
-            <Dialog
-              open={creatingGuild}
-              onOpenChange={() => setCreatingGuild(false)}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create Guild</DialogTitle>
-                </DialogHeader>
-                <GuildForm
-                  mode="create"
-                  onClose={() => setCreatingGuild(false)}
-                  onSaved={(newGuild) =>
-                    setGuilds((prev) => [...prev, newGuild])
-                  }
-                />
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-      ) : (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">You are not logged in</h2>
-          <p className="text-lg">Please log in to view the Guilds section.</p>
-        </div>
-      )}
-    </>
-  );
+  return isAdmin ? <AdminGuilds /> : <UserGuilds />;
 }

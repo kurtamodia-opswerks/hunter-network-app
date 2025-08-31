@@ -103,7 +103,7 @@ export default function GuildForm({
           <SelectContent>
             {hunters.map((h) => (
               <SelectItem key={h.id} value={String(h.id)}>
-                {h.username} ({h.first_name} {h.last_name})
+                {h.full_name} ({h.rank_display})
               </SelectItem>
             ))}
           </SelectContent>
