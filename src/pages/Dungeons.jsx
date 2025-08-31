@@ -11,6 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function Dungeons() {
@@ -24,10 +32,20 @@ export default function Dungeons() {
 
   const isAdmin = user?.is_admin || false;
 
+  // Search and Filter state
+  const [search, setSearch] = useState("");
+  const [ordering, setOrdering] = useState("");
+
   const loadDungeons = async () => {
     setLoading(true);
     try {
-      const response = await authFetch("http://localhost:8000/api/dungeons/");
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (ordering) params.append("ordering", ordering);
+
+      const response = await authFetch(
+        `http://localhost:8000/api/dungeons/?${params.toString()}`
+      );
       if (response.ok) {
         const data = await response.json();
         setDungeons(data);
@@ -42,7 +60,7 @@ export default function Dungeons() {
 
   useEffect(() => {
     if (isLoggedIn) loadDungeons();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, search, ordering]);
 
   const handleDelete = async (id) => {
     const response = await authFetch(
@@ -61,13 +79,36 @@ export default function Dungeons() {
   return (
     <>
       {isLoggedIn ? (
-        <div className="space-y-4">
+        <div className="max-w-6xl mx-auto space-y-4">
           {isAdmin && (
             <Button onClick={() => setCreatingDungeon(true)}>
               + Add Dungeon
             </Button>
           )}
 
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mb-4">
+            <Input
+              placeholder="Search by name or location..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <Select value={ordering} onValueChange={setOrdering}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Default</SelectItem>
+                <SelectItem value="name">Name ↑</SelectItem>
+                <SelectItem value="-name">Name ↓</SelectItem>
+                <SelectItem value="rank">Rank ↑</SelectItem>
+                <SelectItem value="-rank">Rank ↓</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Dungeon Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {loading
               ? Array.from({ length: 6 }).map((_, idx) => (
