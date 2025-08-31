@@ -227,7 +227,7 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
             <div className="space-y-2">
               <Label>Rank</Label>
               <Select
-                value={formData.rank}
+                value={formData.rank ? String(formData.rank) : ""}
                 onValueChange={(val) => handleSelectChange("rank", val)}
               >
                 <SelectTrigger>
