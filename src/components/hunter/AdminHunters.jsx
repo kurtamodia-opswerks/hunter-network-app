@@ -1,21 +1,39 @@
-// src/components/AdminHunters.jsx
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import HunterCard from "@/components/hunter/HunterCard";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import EditHunterForm from "@/components/hunter/EditHunterForm";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminHunters() {
   const authFetch = useAuthFetch();
   const { isLoggedIn, user } = useAuth();
   const [hunters, setHunters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedHunter, setSelectedHunter] = useState(null);
   const [editingHunter, setEditingHunter] = useState(null);
   const [deletingHunter, setDeletingHunter] = useState(null);
 
   const isAdmin = user?.is_admin || false;
+  const navigate = useNavigate();
 
   // Fetch hunters
   useEffect(() => {
@@ -44,6 +62,8 @@ export default function AdminHunters() {
     if (response.ok) {
       setHunters((prev) => prev.filter((h) => h.id !== hunterId));
       toast.success("Hunter deleted successfully");
+    } else {
+      toast.error("Failed to delete hunter");
     }
     setDeletingHunter(null);
   };
@@ -59,24 +79,75 @@ export default function AdminHunters() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {loading
-          ? Array.from({ length: 6 }).map((_, idx) => (
-              <LoadingSkeleton key={idx} />
-            ))
-          : hunters.map((hunter) => (
-              <HunterCard
-                key={hunter.id}
-                hunter={hunter}
-                isAdmin={isAdmin}
-                onEdit={setEditingHunter}
-                onDelete={handleDelete}
-                deletingHunter={deletingHunter}
-                setDeletingHunter={setDeletingHunter}
-              />
-            ))}
-      </div>
+      {loading ? (
+        Array.from({ length: 6 }).map((_, idx) => <LoadingSkeleton key={idx} />)
+      ) : (
+        <Table className="max-w-4xl mx-auto">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center">First Name</TableHead>
+              <TableHead className="text-center">Last Name</TableHead>
+              <TableHead className="text-center">Rank</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {hunters.map((hunter) => (
+              <TableRow key={hunter.id} className="text-center">
+                <TableCell className="text-center">
+                  {hunter.first_name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {hunter.last_name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {hunter.rank_display}
+                </TableCell>
+                <TableCell className="flex justify-center space-x-5">
+                  {/* View Details */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/hunters/${hunter.id}`)}
+                      >
+                        View
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <HunterCard hunter={hunter} isAdmin={isAdmin} />
+                    </DialogContent>
+                  </Dialog>
 
+                  {/* Edit */}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setEditingHunter(hunter)}
+                  >
+                    Edit
+                  </Button>
+
+                  {/* Delete */}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() =>
+                      setDeletingHunter(hunter.id) || handleDelete(hunter.id)
+                    }
+                    disabled={deletingHunter === hunter.id}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      {/* Edit Hunter Modal */}
       {editingHunter && (
         <EditHunterForm
           hunter={editingHunter}

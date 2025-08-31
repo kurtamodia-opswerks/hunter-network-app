@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -19,6 +20,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useAuthFetch } from "@/hooks/useAuthFetch";
 
 export default function HunterCard({
   hunter,
@@ -28,12 +30,37 @@ export default function HunterCard({
   deletingHunter,
   setDeletingHunter,
 }) {
+  const authFetch = useAuthFetch();
+  const [skillMap, setSkillMap] = useState({});
+
+  // Fetch all skills and create a mapping from ID to name
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const res = await authFetch("http://localhost:8000/api/skills/");
+      if (res.ok) {
+        const skills = await res.json();
+        const map = {};
+        skills.forEach((s) => {
+          map[s.id] = s.name;
+        });
+        setSkillMap(map);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  // Convert hunter's skill IDs to names
+  const skillNames =
+    hunter.skills && hunter.skills.length > 0
+      ? hunter.skills.map((id) => skillMap[id] || `Skill ${id}`).join(", ")
+      : "None";
+
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <CardTitle>{hunter.full_name}</CardTitle>
-          {hunter.guild && <Badge>{hunter.guild_name}</Badge>}
+          {hunter.guild_name && <Badge>{hunter.guild_name}</Badge>}
           <Badge
             variant={
               hunter.rank === "S"
@@ -48,19 +75,46 @@ export default function HunterCard({
         </div>
         <CardDescription>{hunter.email}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 flex flex-row justify-between items-center">
-        <div className="content-div">
-          <p>
-            Power Level:{" "}
-            <span className="font-medium">{hunter.power_level}</span>
-          </p>
-          <p>
-            Raid Count: <span className="font-medium">{hunter.raid_count}</span>
-          </p>
-        </div>
+
+      <CardContent className="space-y-2">
+        {isAdmin && (
+          <div className="grid grid-cols-2 gap-4">
+            <p>
+              <span className="font-semibold">Username:</span> {hunter.username}
+            </p>
+            <p>
+              <span className="font-semibold">Date Joined:</span>{" "}
+              {hunter.date_joined}
+            </p>
+            <p>
+              <span className="font-semibold">Power Level:</span>{" "}
+              {hunter.power_level}
+            </p>
+            <p>
+              <span className="font-semibold">Raid Count:</span>{" "}
+              {hunter.raid_count}
+            </p>
+            <div className="col-span-2">
+              <span className="font-semibold">Skills:</span> {skillNames}
+            </div>
+          </div>
+        )}
+
+        {!isAdmin && (
+          <div className="flex flex-row justify-between items-center">
+            <p>
+              Power Level:{" "}
+              <span className="font-medium">{hunter.power_level}</span>
+            </p>
+            <p>
+              Raid Count:{" "}
+              <span className="font-medium">{hunter.raid_count}</span>
+            </p>
+          </div>
+        )}
 
         {isAdmin && (
-          <div className="admin-buttons flex space-x-2">
+          <div className="admin-buttons flex space-x-2 mt-2">
             <Button variant="outline" size="sm" onClick={() => onEdit(hunter)}>
               <SquarePen />
             </Button>

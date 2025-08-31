@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Hunters from "./pages/Hunters";
+import HunterPage from "./pages/HunterPage";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Guilds from "./pages/Guilds";
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/hunters" element={<Hunters />} />
+        <Route path="/hunters/:id" element={<HunterPage />} />
         <Route path="/guilds" element={<Guilds />} />
         <Route path="/guilds/:id" element={<GuildPage />} />
         <Route path="/raids" element={<Raids />} />

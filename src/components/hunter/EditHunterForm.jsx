@@ -37,7 +37,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
   const [guilds, setGuilds] = useState([]);
   const [skills, setSkills] = useState([]);
 
-  // Prefill hunter data
   useEffect(() => {
     if (hunter) {
       setFormData({
@@ -53,7 +52,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
     }
   }, [hunter]);
 
-  // Load guilds & skills from API
   useEffect(() => {
     const fetchOptions = async () => {
       const guildRes = await authFetch("http://localhost:8000/api/guilds/");
@@ -63,19 +61,15 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
       if (skillRes.ok) setSkills(await skillRes.json());
     };
     fetchOptions();
-
-    return () => {};
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
 
-  const handleSelectChange = (field, value) => {
+  const handleSelectChange = (field, value) =>
     setFormData({ ...formData, [field]: value });
-  };
 
-  const handleMultiSelect = (skillId) => {
+  const handleMultiSelect = (skillId) =>
     setFormData((prev) => {
       const exists = prev.skills.includes(skillId);
       return {
@@ -85,7 +79,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
           : [...prev.skills, skillId],
       };
     });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +89,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
         guild: formData.guild ? Number(formData.guild) : null,
         skills: formData.skills.map((s) => Number(s)),
       };
-      console.log("Submitting payload:", payload);
 
       const response = await authFetch(
         `http://localhost:8000/api/hunters/${hunter.id}/`,
@@ -119,15 +111,15 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-      <Card className="w-[500px]">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4">
+      <Card className="w-full max-w-4xl rounded-2xl shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl">Edit Hunter</CardTitle>
           <CardDescription>Update hunter details</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="grid grid-cols-2 gap-4">
             {/* First Name */}
             <div className="space-y-2">
               <Label htmlFor="first_name">First Name</Label>
@@ -181,8 +173,28 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
               />
             </div>
 
-            {/* Guild */}
+            {/* Rank */}
             <div className="space-y-2">
+              <Label>Rank</Label>
+              <Select
+                value={formData.rank ? String(formData.rank) : ""}
+                onValueChange={(val) => handleSelectChange("rank", val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select rank" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["S", "A", "B", "C", "D", "E"].map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Guild */}
+            <div className="space-y-2 col-span-2">
               <Label>Guild</Label>
               <Select
                 value={formData.guild ? String(formData.guild) : ""}
@@ -203,8 +215,8 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
               </Select>
             </div>
 
-            {/* Skills (multi-select checkboxes) */}
-            <div className="space-y-2">
+            {/* Skills */}
+            <div className="space-y-2 col-span-2">
               <Label>Skills</Label>
               <div className="flex flex-wrap gap-2">
                 {skills.map((s) => (
@@ -222,29 +234,9 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
                 ))}
               </div>
             </div>
-
-            {/* Rank */}
-            <div className="space-y-2">
-              <Label>Rank</Label>
-              <Select
-                value={formData.rank ? String(formData.rank) : ""}
-                onValueChange={(val) => handleSelectChange("rank", val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select rank" />
-                </SelectTrigger>
-                <SelectContent>
-                  {["S", "A", "B", "C", "D", "E"].map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex justify-end gap-2">
             <Button type="submit">Save</Button>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
