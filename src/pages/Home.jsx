@@ -1,4 +1,3 @@
-import { GalleryVerticalEnd } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Button } from "@/components/ui/button";
@@ -32,15 +31,6 @@ export default function Home() {
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left side */}
       <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            Hunter Network
-          </a>
-        </div>
-
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             {isLoggedIn ? (
@@ -86,13 +76,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Right side image */}
-      <div className="bg-muted relative hidden lg:block">
-        <img
-          src={theme === "light" ? "/light-mode-bg.png" : "/dark-mode-bg.png"}
-          alt="Background"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+      {/* Right side text section with background */}
+      <div className="relative hidden lg:flex items-center justify-center p-10 text-center">
+        {/* Text content */}
+        <div className="relative max-w-lgflex flex-col items-center gap-6">
+          <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance border-b pb-2">
+            <span className="text-teal-800">Hunter Network:</span> Your Gateway
+            to the Hunter Community
+          </h1>
+
+          <p className="leading-7 [&:not(:first-child)]:mt-6">
+            Connect, collaborate, and conquer challenges together in the world
+            of hunters.
+          </p>
+        </div>
       </div>
     </div>
   );
