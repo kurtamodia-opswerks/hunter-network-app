@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,7 +8,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen, Trash, Users, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -19,15 +20,27 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import RaidParticipationForm from "./RaidParticipationForm";
 
 export default function RaidCard({
   raid,
   isAdmin,
   onEdit,
   onDelete,
-  deletingRaid,
   setDeletingRaid,
 }) {
+  const [participations, setParticipations] = useState(
+    raid.participations_info || []
+  );
+  const [showAddForm, setShowAddForm] = useState(false);
+
   return (
     <Card className="shadow-md">
       <CardHeader>
@@ -41,6 +54,7 @@ export default function RaidCard({
         </div>
         <CardDescription>{raid.date}</CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-2 flex flex-col">
         <p>
           Dungeon: <span className="font-medium">{raid.dungeon_info.name}</span>
@@ -49,15 +63,7 @@ export default function RaidCard({
           Team Strength:{" "}
           <span className="font-medium">{raid.team_strength}</span>
         </p>
-        <p className="text-sm font-medium">Participations:</p>
-        <ul className="list-disc ml-5">
-          {Array.isArray(raid.participations_info) &&
-            raid.participations_info.map((h) => (
-              <li key={h.id}>
-                {h.full_name} ({h.hunter_rank} - {h.role})
-              </li>
-            ))}
-        </ul>
+
         <p>
           Success:{" "}
           {raid.success ? (
@@ -67,44 +73,90 @@ export default function RaidCard({
           )}
         </p>
 
-        {isAdmin && (
-          <div className="flex space-x-2 mt-3">
-            <Button variant="outline" size="sm" onClick={() => onEdit(raid)}>
-              <SquarePen />
-            </Button>
+        <div className="flex space-x-2 mt-3">
+          {/* View Participations */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Users className="mr-2 h-4 w-4" />
+                Participations
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[400px]">
+              <SheetHeader>
+                <SheetTitle>Participations</SheetTitle>
+              </SheetHeader>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDeletingRaid(raid)}
-                >
-                  <Trash className="text-red-400" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Raid</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete{" "}
-                    <span className="font-semibold">{raid.name}</span>? This
-                    action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDelete(raid.id)}
-                    className="bg-red-500 hover:bg-red-600"
+              {!showAddForm ? (
+                <>
+                  <ul className="list-disc ml-5 mt-4 space-y-2">
+                    {participations.map((h) => (
+                      <li key={h.id}>
+                        {h.full_name} ({h.hunter_rank} - {h.role})
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className="mt-4" onClick={() => setShowAddForm(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Participation
+                  </Button>
+                </>
+              ) : (
+                <RaidParticipationForm
+                  raidId={raid.id}
+                  onClose={() => setShowAddForm(false)}
+                  onAdded={(newP) =>
+                    setParticipations((prev) => [...prev, newP])
+                  }
+                />
+              )}
+            </SheetContent>
+          </Sheet>
+
+          {/* Admin actions */}
+          {isAdmin && (
+            <>
+              {/* Edit */}
+              <Button variant="outline" size="sm" onClick={() => onEdit(raid)}>
+                <SquarePen className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+
+              {/* Delete */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeletingRaid(raid)}
                   >
+                    <Trash className="mr-2 h-4 w-4 text-red-400" />
                     Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Raid</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete{" "}
+                      <span className="font-semibold">{raid.name}</span>? This
+                      action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(raid.id)}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

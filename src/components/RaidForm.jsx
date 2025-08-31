@@ -14,27 +14,34 @@ import {
 
 export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
   const authFetch = useAuthFetch();
+
+  // Raid fields
   const [name, setName] = useState(raid?.name || "");
   const [dungeon, setDungeon] = useState(raid?.dungeon || "");
   const [date, setDate] = useState(raid?.date || "");
   const [success, setSuccess] = useState(raid?.success || false);
   const [teamStrength, setTeamStrength] = useState(raid?.team_strength || "");
-  const [dungeons, setDungeons] = useState([]);
 
-  // Fetch dungeons for dropdown
+  // Dropdown data
+  const [dungeons, setDungeons] = useState([]);
+  const [hunters, setHunters] = useState([]);
+
+  // Participation state
+  const [selectedHunter, setSelectedHunter] = useState("");
+  const [role, setRole] = useState("Tank");
+
+  // Fetch dungeons
   useEffect(() => {
     const fetchDungeons = async () => {
       try {
         const res = await authFetch("http://localhost:8000/api/dungeons/");
-        if (res.ok) {
-          setDungeons(await res.json());
-        }
+        if (res.ok) setDungeons(await res.json());
       } catch (err) {
         console.error("Failed to fetch dungeons:", err);
       }
     };
     fetchDungeons();
-  }, [authFetch]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +51,9 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
       dungeon: dungeon ? Number(dungeon) : null,
       date,
       success,
-      team_strength: teamStrength,
+      participations_create: selectedHunter
+        ? [{ hunter_id: Number(selectedHunter), role }]
+        : [],
     };
 
     const url =
@@ -133,16 +142,6 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
             <SelectItem value="false">Failed</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-
-      {/* Team Strength */}
-      <div>
-        <Label htmlFor="team_strength">Team Strength</Label>
-        <Input
-          id="team_strength"
-          value={teamStrength}
-          onChange={(e) => setTeamStrength(e.target.value)}
-        />
       </div>
 
       <div className="flex justify-end gap-2">
