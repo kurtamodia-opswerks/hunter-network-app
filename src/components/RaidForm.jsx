@@ -107,11 +107,13 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
             <SelectValue placeholder="Select dungeon" />
           </SelectTrigger>
           <SelectContent>
-            {dungeons.map((d) => (
-              <SelectItem key={d.id} value={String(d.id)}>
-                {d.name} ({d.rank_display})
-              </SelectItem>
-            ))}
+            {dungeons
+              .filter((d) => d.is_open)
+              .map((d) => (
+                <SelectItem key={d.id} value={String(d.id)}>
+                  {d.name} ({d.rank_display})
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
