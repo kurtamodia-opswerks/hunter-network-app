@@ -91,6 +91,7 @@ export default function AdminHunters({
         <Table className="max-w-4xl mx-auto">
           <TableHeader>
             <TableRow>
+              <TableHead className="text-center">Hunter ID</TableHead>
               <TableHead className="text-center">First Name</TableHead>
               <TableHead className="text-center">Last Name</TableHead>
               <TableHead className="text-center">Rank</TableHead>
@@ -101,6 +102,7 @@ export default function AdminHunters({
           <TableBody>
             {hunters.map((hunter) => (
               <TableRow key={hunter.id} className="text-center">
+                <TableCell>{hunter.id}</TableCell>
                 <TableCell>{hunter.first_name}</TableCell>
                 <TableCell>{hunter.last_name}</TableCell>
                 <TableCell>{hunter.rank_display}</TableCell>

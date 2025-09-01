@@ -62,10 +62,7 @@ function TableRow({ className, ...props }) {
   return (
     <tr
       data-slot="table-row"
-      className={cn(
-        "hover:bg-[color:var(--color-muted-foreground)] transition-colors",
-        className
-      )}
+      className={cn(" transition-colors", className)}
       {...props}
     />
   );
