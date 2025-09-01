@@ -13,12 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function GuildForm({
-  mode = "create",
-  guild,
-  onClose,
-  onSaved,
-}) {
+export default function GuildForm({ mode, guild, onClose, onSaved }) {
   const authFetch = useAuthFetch();
   const { createGuild, updateGuild } = useGuildsApi();
 
@@ -31,16 +26,16 @@ export default function GuildForm({
   useEffect(() => {
     const fetchHunters = async () => {
       try {
-        let url = "http://localhost:8000/api/hunters/";
-
-        if (mode === "edit" && guild?.id) {
-          // Only fetch hunters who are members of this guild
-          url += `?guild=${guild.id}`;
-        }
-
-        const res = await authFetch(url);
+        const res = await authFetch("http://localhost:8000/api/hunters/");
         if (res.ok) {
-          const data = await res.json();
+          let data = await res.json();
+
+          if (mode === "edit") {
+            data = data.filter((h) => h.guild === guild.id);
+          } else {
+            data = data.filter((h) => h.guild === null);
+          }
+
           setHunters(data);
         }
       } catch (err) {
@@ -49,7 +44,7 @@ export default function GuildForm({
     };
 
     fetchHunters();
-  }, [authFetch, mode, guild]);
+  }, [guild]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

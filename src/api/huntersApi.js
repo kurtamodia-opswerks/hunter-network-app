@@ -1,27 +1,40 @@
 // src/api/huntersApi.js
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export function useHuntersApi() {
   const authFetch = useAuthFetch();
 
-  const getHunters = async ({ ordering, search, rank, isAdmin }) => {
-    let url = `http://localhost:8000/api/hunters/?ordering=${ordering}`;
-    if (search) url += `&search=${encodeURIComponent(search)}`;
-    if (!isAdmin && rank !== "all") url += `&rank=${encodeURIComponent(rank)}`;
+  const getHunters = async ({
+    ordering = "id",
+    search = "",
+    rank = "all",
+    isAdmin = false,
+  } = {}) => {
+    const params = new URLSearchParams();
+    if (ordering) params.append("ordering", ordering);
+    if (search) params.append("search", search);
+    if (!isAdmin && rank !== "all") params.append("rank", rank);
 
-    const res = await authFetch(url, { cache: "no-store" });
+    const res = await authFetch(
+      `${API_BASE_URL}/hunters/?${params.toString()}`,
+      {
+        cache: "no-store",
+      }
+    );
     if (!res.ok) throw new Error("Failed to fetch hunters");
     return res.json();
   };
 
   const getHunter = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/hunters/${id}/`);
+    const res = await authFetch(`${API_BASE_URL}/hunters/${id}/`);
     if (!res.ok) throw new Error("Failed to fetch hunter");
     return res.json();
   };
 
   const updateHunter = async (id, data) => {
-    const res = await authFetch(`http://localhost:8000/api/hunters/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/hunters/${id}/`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -31,16 +44,15 @@ export function useHuntersApi() {
   };
 
   const deleteHunter = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/hunters/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/hunters/${id}/`, {
       method: "DELETE",
     });
     if (!res.ok) throw new Error("Failed to delete hunter");
     return true;
   };
 
-  // ✅ New: register a hunter
   const registerHunter = async (data) => {
-    const res = await fetch("http://localhost:8000/api/hunters/", {
+    const res = await fetch(`${API_BASE_URL}/hunters/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

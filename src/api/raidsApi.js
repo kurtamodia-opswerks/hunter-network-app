@@ -1,6 +1,8 @@
 // src/api/raidsApi.js
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export function useRaidsApi() {
   const authFetch = useAuthFetch();
 
@@ -10,22 +12,21 @@ export function useRaidsApi() {
     if (search) params.append("search", search);
     if (ordering) params.append("ordering", ordering);
 
-    const res = await authFetch(
-      `http://localhost:8000/api/raids/?${params.toString()}`,
-      { cache: "no-store" }
-    );
+    const res = await authFetch(`${API_BASE_URL}/raids/?${params.toString()}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error("Failed to fetch raids");
     return res.json();
   };
 
   const getRaid = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/raids/${id}/`);
+    const res = await authFetch(`${API_BASE_URL}/raids/${id}/`);
     if (!res.ok) throw new Error("Failed to fetch raid");
     return res.json();
   };
 
   const createRaid = async (data) => {
-    const res = await authFetch(`http://localhost:8000/api/raids/`, {
+    const res = await authFetch(`${API_BASE_URL}/raids/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -35,7 +36,7 @@ export function useRaidsApi() {
   };
 
   const updateRaid = async (id, data) => {
-    const res = await authFetch(`http://localhost:8000/api/raids/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/raids/${id}/`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -45,7 +46,7 @@ export function useRaidsApi() {
   };
 
   const deleteRaid = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/raids/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/raids/${id}/`, {
       method: "DELETE",
     });
     if (!res.ok) throw new Error("Failed to delete raid");
@@ -54,62 +55,50 @@ export function useRaidsApi() {
 
   // --- Raid Participations ---
   const getParticipations = async () => {
-    const res = await authFetch(
-      `http://localhost:8000/api/raid-participations/`,
-      {
-        cache: "no-store",
-      }
-    );
+    const res = await authFetch(`${API_BASE_URL}/raid-participations/`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error("Failed to fetch participations");
     return res.json();
   };
 
   const createParticipation = async (data) => {
-    const res = await authFetch(
-      `http://localhost:8000/api/raid-participations/`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await authFetch(`${API_BASE_URL}/raid-participations/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
     if (!res.ok) throw new Error("Failed to add participation");
     return res.json();
   };
 
   const updateParticipation = async (id, data) => {
-    const res = await authFetch(
-      `http://localhost:8000/api/raid-participations/${id}/`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await authFetch(`${API_BASE_URL}/raid-participations/${id}/`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
     if (!res.ok) throw new Error("Failed to update participation");
     return res.json();
   };
 
   const deleteParticipation = async (id) => {
-    const res = await authFetch(
-      `http://localhost:8000/api/raid-participations/${id}/`,
-      {
-        method: "DELETE",
-      }
-    );
+    const res = await authFetch(`${API_BASE_URL}/raid-participations/${id}/`, {
+      method: "DELETE",
+    });
     if (!res.ok) throw new Error("Failed to delete participation");
     return true;
   };
 
   // --- Helpers (dungeons, hunters) ---
   const getDungeons = async () => {
-    const res = await authFetch(`http://localhost:8000/api/dungeons/`);
+    const res = await authFetch(`${API_BASE_URL}/dungeons/`);
     if (!res.ok) throw new Error("Failed to fetch dungeons");
     return res.json();
   };
 
   const getHunters = async () => {
-    const res = await authFetch(`http://localhost:8000/api/hunters/`);
+    const res = await authFetch(`${API_BASE_URL}/hunters/`);
     if (!res.ok) throw new Error("Failed to fetch hunters");
     return res.json();
   };

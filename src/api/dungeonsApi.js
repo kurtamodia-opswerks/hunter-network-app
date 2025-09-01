@@ -1,6 +1,8 @@
 // src/api/dungeonsApi.js
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export function useDungeonsApi() {
   const authFetch = useAuthFetch();
 
@@ -10,20 +12,20 @@ export function useDungeonsApi() {
     if (ordering) params.append("ordering", ordering);
 
     const res = await authFetch(
-      `http://localhost:8000/api/dungeons/?${params.toString()}`
+      `${API_BASE_URL}/dungeons/?${params.toString()}`
     );
     if (!res.ok) throw new Error("Failed to fetch dungeons");
     return res.json();
   };
 
   const getDungeon = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/dungeons/${id}/`);
+    const res = await authFetch(`${API_BASE_URL}/dungeons/${id}/`);
     if (!res.ok) throw new Error("Failed to fetch dungeon");
     return res.json();
   };
 
   const createDungeon = async (data) => {
-    const res = await authFetch("http://localhost:8000/api/dungeons/", {
+    const res = await authFetch(`${API_BASE_URL}/dungeons/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -33,7 +35,7 @@ export function useDungeonsApi() {
   };
 
   const updateDungeon = async (id, data) => {
-    const res = await authFetch(`http://localhost:8000/api/dungeons/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/dungeons/${id}/`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -43,7 +45,7 @@ export function useDungeonsApi() {
   };
 
   const deleteDungeon = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/dungeons/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/dungeons/${id}/`, {
       method: "DELETE",
     });
     if (!res.ok) throw new Error("Failed to delete dungeon");

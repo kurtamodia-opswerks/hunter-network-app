@@ -1,4 +1,7 @@
+// src/api/guildsApi.js
 import { useAuthFetch } from "@/hooks/useAuthFetch";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function useGuildsApi() {
   const authFetch = useAuthFetch();
@@ -9,15 +12,17 @@ export function useGuildsApi() {
     if (ordering) params.append("ordering", ordering);
 
     const res = await authFetch(
-      `http://localhost:8000/api/guilds/?${params.toString()}`,
-      { cache: "no-store" }
+      `${API_BASE_URL}/guilds/?${params.toString()}`,
+      {
+        cache: "no-store",
+      }
     );
     if (!res.ok) throw new Error("Failed to load guilds");
     return res.json();
   };
 
   const getGuild = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/guilds/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/guilds/${id}/`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to load guild");
@@ -25,7 +30,7 @@ export function useGuildsApi() {
   };
 
   const createGuild = async (data) => {
-    const res = await authFetch("http://localhost:8000/api/guilds/", {
+    const res = await authFetch(`${API_BASE_URL}/guilds/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -35,7 +40,7 @@ export function useGuildsApi() {
   };
 
   const updateGuild = async (id, data) => {
-    const res = await authFetch(`http://localhost:8000/api/guilds/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/guilds/${id}/`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -45,7 +50,7 @@ export function useGuildsApi() {
   };
 
   const deleteGuild = async (id) => {
-    const res = await authFetch(`http://localhost:8000/api/guilds/${id}/`, {
+    const res = await authFetch(`${API_BASE_URL}/guilds/${id}/`, {
       method: "DELETE",
     });
     if (!res.ok) throw new Error("Failed to delete guild");
@@ -53,10 +58,9 @@ export function useGuildsApi() {
   };
 
   const getGuildsByLeader = async (leaderId) => {
-    const res = await authFetch(
-      `http://localhost:8000/api/guilds/?leader=${leaderId}`,
-      { cache: "no-store" }
-    );
+    const res = await authFetch(`${API_BASE_URL}/guilds/?leader=${leaderId}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error("Failed to fetch leader's guild");
     return res.json();
   };
