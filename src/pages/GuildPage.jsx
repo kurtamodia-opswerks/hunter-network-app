@@ -5,9 +5,9 @@ import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-import GuildHeader from "@/components/guild/GuildHeader";
-import GuildLeaderInfo from "@/components/guild/GuildLeaderInfo";
-import GuildMembers from "@/components/guild/GuildMembers";
+import GuildHeader from "@/components/guild/guild-page-components/GuildHeader";
+import GuildLeaderInfo from "@/components/guild/guild-page-components/GuildLeaderInfo";
+import GuildMembers from "@/components/guild/guild-page-components/GuildMembers";
 
 export default function GuildPage() {
   const { id } = useParams();
