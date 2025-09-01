@@ -58,19 +58,21 @@ export default function GuildCard({
         </Button>
 
         {isAdmin && (
-          <div className="flex space-x-2 mt-3">
+          <div className="flex space-x-2 mt-3 items-center justify-end">
             <Button variant="outline" size="sm" onClick={() => onEdit(guild)}>
               <SquarePen />
+              Edit
             </Button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="destructive"
                   size="sm"
                   onClick={() => setDeletingGuild(guild)}
                 >
-                  <Trash className="text-red-400" />
+                  <Trash />
+                  Delete
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>

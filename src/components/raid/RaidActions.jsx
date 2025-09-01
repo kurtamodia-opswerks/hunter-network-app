@@ -34,11 +34,11 @@ export default function RaidActions({
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               onClick={() => setDeletingRaid(raid)}
             >
-              <Trash className="mr-2 h-4 w-4 text-red-400" />
+              <Trash className="h-4 w-4 " />
               Delete
             </Button>
           </AlertDialogTrigger>
