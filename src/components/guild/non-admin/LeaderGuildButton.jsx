@@ -1,15 +1,17 @@
+// src/components/guild/LeaderGuildButton.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useGuildsApi } from "@/api/guildsApi";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export default function LeaderGuildButton() {
   const navigate = useNavigate();
-  const authFetch = useAuthFetch();
   const { user } = useAuth();
+  const { getGuildsByLeader } = useGuildsApi();
+
   const [guildId, setGuildId] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,12 +24,7 @@ export default function LeaderGuildButton() {
 
       setLoading(true);
       try {
-        // Assuming the API provides a guild by leader endpoint or filter
-        const res = await authFetch(
-          `http://localhost:8000/api/guilds/?leader=${user.user_id}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch guild info");
-        const data = await res.json();
+        const data = await getGuildsByLeader(user.user_id);
         if (data.length > 0) setGuildId(data[0].id);
       } catch (err) {
         console.error(err);
@@ -38,7 +35,7 @@ export default function LeaderGuildButton() {
     };
 
     fetchGuildIfLeader();
-  }, [user]);
+  }, [user, getGuildsByLeader]);
 
   if (!user?.is_leader || (!guildId && !loading)) return null;
 

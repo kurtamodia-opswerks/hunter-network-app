@@ -1,13 +1,15 @@
+// src/pages/Guilds.jsx
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import AdminGuilds from "@/components/guild/admin/AdminGuilds";
 import UserGuilds from "@/components/guild/non-admin/UserGuilds";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useGuildsApi } from "@/api/guildsApi";
 
 export default function Guilds() {
   const { isLoggedIn, user } = useAuth();
   const isAdmin = user?.is_admin || false;
-  const authFetch = useAuthFetch();
+
+  const { getGuilds } = useGuildsApi();
 
   const [guilds, setGuilds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,22 +19,10 @@ export default function Guilds() {
   const loadGuilds = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (ordering) params.append("ordering", ordering);
-
-      const response = await authFetch(
-        `http://localhost:8000/api/guilds/?${params.toString()}`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setGuilds(data);
-      } else {
-        console.error("Failed to load guilds");
-      }
+      const data = await getGuilds({ search, ordering });
+      setGuilds(data);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load guilds", err);
     }
     setLoading(false);
   };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuthFetch } from "../../../hooks/useAuthFetch";
+import { useGuildsApi } from "@/api/guildsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export default function GuildForm({
   onSaved,
 }) {
   const authFetch = useAuthFetch();
+  const { createGuild, updateGuild } = useGuildsApi();
 
   const [name, setName] = useState(guild?.name || "");
   const [leader, setLeader] = useState(guild?.leader || "");
@@ -57,21 +59,12 @@ export default function GuildForm({
     if (leader !== "") payload.leader = Number(leader);
     if (foundedDate !== "") payload.founded_date = foundedDate;
 
-    const url =
-      mode === "edit"
-        ? `http://localhost:8000/api/guilds/${guild.id}/`
-        : "http://localhost:8000/api/guilds/";
+    try {
+      const savedGuild =
+        mode === "edit"
+          ? await updateGuild(guild.id, payload)
+          : await createGuild(payload);
 
-    const method = mode === "edit" ? "PUT" : "POST";
-
-    const response = await authFetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      const savedGuild = await response.json();
       onSaved(savedGuild);
       toast.success(
         mode === "edit"
@@ -79,8 +72,8 @@ export default function GuildForm({
           : "Guild created successfully!"
       );
       onClose();
-    } else {
-      console.error("Failed to save guild");
+    } catch (err) {
+      console.error("Failed to save guild:", err);
       toast.error(`Failed to ${mode === "edit" ? "update" : "create"} guild`);
     }
   };

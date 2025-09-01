@@ -1,4 +1,4 @@
-import { cache, useState } from "react";
+import { useState } from "react";
 import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import GuildForm from "@/components/guild/admin/GuildForm";
@@ -18,7 +18,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useGuildsApi } from "@/api/guildsApi";
 
 export default function AdminGuilds({
   guilds,
@@ -29,20 +29,18 @@ export default function AdminGuilds({
   ordering,
   setOrdering,
 }) {
-  const authFetch = useAuthFetch();
+  const { deleteGuild } = useGuildsApi();
   const [editingGuild, setEditingGuild] = useState(null);
   const [creatingGuild, setCreatingGuild] = useState(false);
   const [deletingGuild, setDeletingGuild] = useState(null);
 
   const handleDelete = async (guildId) => {
-    const response = await authFetch(
-      `http://localhost:8000/api/guilds/${guildId}/`,
-      { method: "DELETE" }
-    );
-    if (response.ok) {
+    try {
+      await deleteGuild(guildId);
       setGuilds((prev) => prev.filter((g) => g.id !== guildId));
       toast.success("Guild deleted successfully");
-    } else {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to delete guild");
     }
     setDeletingGuild(null);

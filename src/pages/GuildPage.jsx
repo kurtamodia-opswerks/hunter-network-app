@@ -1,7 +1,8 @@
+// src/pages/GuildPage.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useGuildsApi } from "@/api/guildsApi";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -12,9 +13,10 @@ import GuildMembers from "@/components/guild/guild-page-components/GuildMembers"
 export default function GuildPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const authFetch = useAuthFetch();
   const { user } = useAuth();
   const isAdmin = user?.is_admin || false;
+
+  const { getGuild } = useGuildsApi();
 
   const [guild, setGuild] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,16 +26,14 @@ export default function GuildPage() {
       if (!id) return;
       setLoading(true);
       try {
-        const res = await authFetch(`http://localhost:8000/api/guilds/${id}/`, {
-          cache: "no-store",
-        });
-        if (res.ok) setGuild(await res.json());
-        else toast.error("Failed to load guild.");
+        const data = await getGuild(id);
+        setGuild(data);
       } catch (err) {
         console.error(err);
         toast.error("Error fetching guild.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadGuild();
   }, [id]);
@@ -53,7 +53,6 @@ export default function GuildPage() {
         user={user}
         isAdmin={isAdmin}
         setGuild={setGuild}
-        authFetch={authFetch}
       />
       <div className="mt-10">
         <Button onClick={() => navigate(-1)}>Back</Button>
