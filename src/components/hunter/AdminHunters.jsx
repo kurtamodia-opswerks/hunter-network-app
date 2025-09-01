@@ -24,6 +24,8 @@ import { Check, CircleX } from "lucide-react";
 
 export default function AdminHunters({
   hunters,
+  skills,
+  guilds,
   setHunters,
   loading,
   search,
