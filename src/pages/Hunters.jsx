@@ -3,16 +3,15 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AdminHunters from "@/components/hunter/admin/AdminHunters";
 import UserHunters from "@/components/hunter/non-admin/UserHunters";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
+import { useHuntersApi } from "@/api/huntersApi";
 
 export default function Hunters() {
   const { user, isLoggedIn } = useAuth();
   const isAdmin = user?.is_admin || false;
-  const authFetch = useAuthFetch();
   const { skills, guilds } = useFetchSkillsAndGuilds();
+  const { getHunters } = useHuntersApi();
 
-  // Shared state
   const [hunters, setHunters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -21,29 +20,18 @@ export default function Hunters() {
   );
   const [rank, setRank] = useState("all");
 
-  // Fetch hunters
   useEffect(() => {
     if (!isLoggedIn) return;
-
     const loadHunters = async () => {
       setLoading(true);
       try {
-        let url = `http://localhost:8000/api/hunters/?ordering=${ordering}`;
-        if (search) url += `&search=${encodeURIComponent(search)}`;
-        if (!isAdmin && rank !== "all")
-          url += `&rank=${encodeURIComponent(rank)}`;
-
-        const res = await authFetch(url, { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          setHunters(data);
-        }
+        const data = await getHunters({ ordering, search, rank, isAdmin });
+        setHunters(data);
       } catch (err) {
         console.error(err);
       }
       setLoading(false);
     };
-
     loadHunters();
   }, [search, ordering, rank, isAdmin, isLoggedIn]);
 

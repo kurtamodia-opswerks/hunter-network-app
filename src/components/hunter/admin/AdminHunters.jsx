@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useHuntersApi } from "@/api/huntersApi";
 import EditHunterForm from "@/components/hunter/admin/EditHunterForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,19 +46,17 @@ export default function AdminHunters({
   setOrdering,
 }) {
   const authFetch = useAuthFetch();
+  const { deleteHunter } = useHuntersApi();
   const [editingHunter, setEditingHunter] = useState(null);
   const [deletingHunter, setDeletingHunter] = useState(null);
   const navigate = useNavigate();
 
   const handleDelete = async (hunterId) => {
-    const response = await authFetch(
-      `http://localhost:8000/api/hunters/${hunterId}/`,
-      { method: "DELETE" }
-    );
-    if (response.ok) {
+    try {
+      await deleteHunter(hunterId);
       setHunters((prev) => prev.filter((h) => h.id !== hunterId));
       toast.success("Hunter deleted successfully");
-    } else {
+    } catch {
       toast.error("Failed to delete hunter");
     }
     setDeletingHunter(null);

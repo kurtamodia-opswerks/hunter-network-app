@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useHuntersApi } from "@/api/huntersApi";
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ export default function EditHunterForm({
   guilds = [],
 }) {
   const authFetch = useAuthFetch();
+  const { updateHunter } = useHuntersApi();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -82,17 +84,7 @@ export default function EditHunterForm({
         skills: formData.skills.map((s) => Number(s)),
       };
 
-      const response = await authFetch(
-        `http://localhost:8000/api/hunters/${hunter.id}/`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to update hunter");
-      const data = await response.json();
+      const data = await updateHunter(hunter.id, payload);
       if (onUpdated) onUpdated(data);
       toast.success("Hunter updated successfully");
       onClose();

@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useHuntersApi } from "@/api/huntersApi";
 import { toast } from "sonner";
 import {
   Card,
@@ -17,31 +17,25 @@ import { Button } from "@/components/ui/button";
 export default function HunterPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const authFetch = useAuthFetch();
+  const { getHunter } = useHuntersApi();
 
   const [hunter, setHunter] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const { skills } = useFetchSkillsAndGuilds();
 
   useEffect(() => {
+    if (!id) return;
     const loadHunter = async () => {
-      if (!id) return;
       setLoading(true);
-
       try {
-        const res = await authFetch(`http://localhost:8000/api/hunters/${id}/`);
-        if (!res.ok) throw new Error("Failed to load hunter");
-        const data = await res.json();
+        const data = await getHunter(id);
         setHunter(data);
       } catch (err) {
         console.error(err);
         toast.error("Error loading hunter");
       }
-
       setLoading(false);
     };
-
     loadHunter();
   }, [id]);
 
@@ -49,7 +43,6 @@ export default function HunterPage() {
   if (!hunter) return <p className="text-center mt-20">Hunter not found.</p>;
 
   const skillMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
-
   const skillNames =
     hunter.skills?.length > 0
       ? hunter.skills.map((id) => skillMap[id] || `Skill ${id}`).join(", ")
@@ -68,7 +61,6 @@ export default function HunterPage() {
           </div>
           <CardDescription>{hunter.email}</CardDescription>
         </CardHeader>
-
         <CardContent className="grid grid-cols-2 gap-4">
           <p>
             <span className="font-semibold">Username:</span> {hunter.username}
@@ -89,7 +81,6 @@ export default function HunterPage() {
             <span className="font-semibold">Skills:</span> {skillNames}
           </div>
         </CardContent>
-
         <CardFooter className="flex justify-end">
           <Button onClick={() => navigate(-1)}>Back</Button>
         </CardFooter>
