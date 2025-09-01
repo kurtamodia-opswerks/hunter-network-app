@@ -10,6 +10,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectTrigger,
   SelectContent,
@@ -115,16 +126,43 @@ export default function AdminHunters({
                   >
                     Edit
                   </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() =>
-                      setDeletingHunter(hunter.id) || handleDelete(hunter.id)
-                    }
-                    disabled={deletingHunter === hunter.id}
+                  <AlertDialog
+                    open={deletingHunter === hunter.id}
+                    onOpenChange={(open) => {
+                      if (!open) setDeletingHunter(null);
+                    }}
                   >
-                    Delete
-                  </Button>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setDeletingHunter(hunter.id)}
+                      >
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Hunter</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete{" "}
+                          <span className="font-semibold">
+                            {hunter.first_name} {hunter.last_name}
+                          </span>
+                          ? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(hunter.id)}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Yes, Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
