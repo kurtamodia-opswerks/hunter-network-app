@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -20,36 +19,17 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
 
 export default function HunterCard({
   hunter,
+  skills = [],
   isAdmin,
   onEdit,
   onDelete,
   deletingHunter,
   setDeletingHunter,
 }) {
-  const authFetch = useAuthFetch();
-  const [skillMap, setSkillMap] = useState({});
-
-  // Fetch all skills and create a mapping from ID to name
-  useEffect(() => {
-    const fetchSkills = async () => {
-      const res = await authFetch("http://localhost:8000/api/skills/");
-      if (res.ok) {
-        const skills = await res.json();
-        const map = {};
-        skills.forEach((s) => {
-          map[s.id] = s.name;
-        });
-        setSkillMap(map);
-      }
-    };
-    fetchSkills();
-  }, []);
-
-  // Convert hunter's skill IDs to names
+  const skillMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
   const skillNames =
     hunter.skills && hunter.skills.length > 0
       ? hunter.skills.map((id) => skillMap[id] || `Skill ${id}`).join(", ")

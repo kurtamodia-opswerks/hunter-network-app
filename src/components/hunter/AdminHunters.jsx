@@ -1,5 +1,4 @@
 import { useState } from "react";
-import HunterCard from "@/components/hunter/HunterCard";
 import EditHunterForm from "@/components/hunter/EditHunterForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -134,6 +133,8 @@ export default function AdminHunters({
       {editingHunter && (
         <EditHunterForm
           hunter={editingHunter}
+          skills={skills}
+          guilds={guilds}
           onClose={() => setEditingHunter(null)}
           onUpdated={(updated) =>
             setHunters((prev) =>

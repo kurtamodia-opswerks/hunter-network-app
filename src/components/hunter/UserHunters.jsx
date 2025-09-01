@@ -12,7 +12,7 @@ import HunterCard from "@/components/hunter/HunterCard";
 
 export default function UserHunters({
   hunters,
-  loading,
+  skills,
   search,
   setSearch,
   rank,
@@ -64,7 +64,12 @@ export default function UserHunters({
           </h2>
           <div className="space-y-4">
             {displayedPower.map((h) => (
-              <HunterCard key={h.id} hunter={h} isAdmin={false} />
+              <HunterCard
+                key={h.id}
+                hunter={h}
+                isAdmin={false}
+                skills={skills}
+              />
             ))}
           </div>
           {!showAllPower && powerRankings.length > 5 && (
@@ -82,7 +87,12 @@ export default function UserHunters({
           </h2>
           <div className="space-y-4">
             {displayedRaid.map((h) => (
-              <HunterCard key={h.id} hunter={h} isAdmin={false} />
+              <HunterCard
+                key={h.id}
+                hunter={h}
+                isAdmin={false}
+                skills={skills}
+              />
             ))}
           </div>
           {!showAllRaid && raidLeaders.length > 5 && (

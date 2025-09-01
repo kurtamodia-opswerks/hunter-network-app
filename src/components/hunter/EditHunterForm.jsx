@@ -20,7 +20,13 @@ import {
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";
 
-export default function EditHunterForm({ hunter, onClose, onUpdated }) {
+export default function EditHunterForm({
+  hunter,
+  onClose,
+  onUpdated,
+  skills = [],
+  guilds = [],
+}) {
   const authFetch = useAuthFetch();
 
   const [formData, setFormData] = useState({
@@ -33,9 +39,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
     skills: [],
     rank: "E",
   });
-
-  const [guilds, setGuilds] = useState([]);
-  const [skills, setSkills] = useState([]);
 
   useEffect(() => {
     if (hunter) {
@@ -51,17 +54,6 @@ export default function EditHunterForm({ hunter, onClose, onUpdated }) {
       });
     }
   }, [hunter]);
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      const guildRes = await authFetch("http://localhost:8000/api/guilds/");
-      if (guildRes.ok) setGuilds(await guildRes.json());
-
-      const skillRes = await authFetch("http://localhost:8000/api/skills/");
-      if (skillRes.ok) setSkills(await skillRes.json());
-    };
-    fetchOptions();
-  }, []);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.id]: e.target.value });
