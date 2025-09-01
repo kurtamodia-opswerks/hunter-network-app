@@ -1,6 +1,8 @@
+// src/pages/profile/EditProfilePage.jsx
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useHuntersApi } from "@/api/huntersApi";
+import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -23,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -34,7 +35,8 @@ import {
 export default function EditProfilePage() {
   const { user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
-  const authFetch = useAuthFetch();
+  const { getHunter, updateHunter } = useHuntersApi();
+  const { skills, guilds, loading: loadingOptions } = useFetchSkillsAndGuilds();
 
   const [hunter, setHunter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,27 +52,18 @@ export default function EditProfilePage() {
     rank: "E",
   });
 
-  const [guilds, setGuilds] = useState([]);
-  const [skills, setSkills] = useState([]);
-
   // Modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Load user profile
   useEffect(() => {
     if (!isLoggedIn || !user) return;
 
-    const loadData = async () => {
+    const loadProfile = async () => {
       setLoading(true);
       try {
-        const res = await authFetch(
-          `http://localhost:8000/api/hunters/${user.user_id}/`,
-          {
-            cache: "no-store",
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
+        const data = await getHunter(user.user_id);
         setHunter(data);
         setFormData({
           first_name: data.first_name || "",
@@ -82,11 +75,6 @@ export default function EditProfilePage() {
           skills: data.skills || [],
           rank: data.rank || "E",
         });
-
-        const guildRes = await authFetch("http://localhost:8000/api/guilds/");
-        if (guildRes.ok) setGuilds(await guildRes.json());
-        const skillRes = await authFetch("http://localhost:8000/api/skills/");
-        if (skillRes.ok) setSkills(await skillRes.json());
       } catch (err) {
         console.error(err);
         toast.error("Error loading profile");
@@ -94,8 +82,8 @@ export default function EditProfilePage() {
       setLoading(false);
     };
 
-    loadData();
-  }, [isLoggedIn]);
+    loadProfile();
+  }, [isLoggedIn, user]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -121,9 +109,9 @@ export default function EditProfilePage() {
 
   const handleConfirmSubmit = async () => {
     try {
-      // Verify password first
-      const verifyRes = await authFetch(
-        "http://localhost:8000/api/verify-password/",
+      // Verify password before updating profile
+      const verifyRes = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/verify-password/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -132,30 +120,19 @@ export default function EditProfilePage() {
       );
 
       if (!verifyRes.ok) throw new Error("Failed to verify password");
-
       const verifyData = await verifyRes.json();
       if (!verifyData.valid) throw new Error("Incorrect password");
 
-      // Proceed to update profile
+      // Update profile
       const payload = {
         ...formData,
         password: formData.password || undefined,
         guild: formData.guild ? Number(formData.guild) : null,
-        skills: formData.skills.map((s) => Number(s)),
+        skills: formData.skills.map(Number),
       };
 
-      const response = await authFetch(
-        `http://localhost:8000/api/hunters/${hunter.id}/`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to update profile");
-      const data = await response.json();
-      setHunter(data);
+      const updated = await updateHunter(hunter.id, payload);
+      setHunter(updated);
       toast.success("Profile updated successfully!");
       setConfirmOpen(false);
       setConfirmPassword("");
@@ -166,7 +143,8 @@ export default function EditProfilePage() {
     }
   };
 
-  if (loading) return <p className="text-center mt-20">Loading profile...</p>;
+  if (loading || loadingOptions)
+    return <p className="text-center mt-20">Loading profile...</p>;
   if (!hunter) return <p className="text-center mt-20">Profile not found.</p>;
 
   return (
@@ -181,6 +159,7 @@ export default function EditProfilePage() {
 
         <form>
           <CardContent className="grid grid-cols-2 gap-4">
+            {/* First Name */}
             <div className="space-y-2">
               <Label htmlFor="first_name">First Name</Label>
               <Input
@@ -189,6 +168,8 @@ export default function EditProfilePage() {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Last Name */}
             <div className="space-y-2">
               <Label htmlFor="last_name">Last Name</Label>
               <Input
@@ -197,6 +178,8 @@ export default function EditProfilePage() {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Username */}
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -205,6 +188,8 @@ export default function EditProfilePage() {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -214,6 +199,8 @@ export default function EditProfilePage() {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -224,6 +211,8 @@ export default function EditProfilePage() {
                 placeholder="Leave blank to keep unchanged"
               />
             </div>
+
+            {/* Rank */}
             <div className="space-y-2">
               <Label>Rank</Label>
               <Select
@@ -242,6 +231,8 @@ export default function EditProfilePage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Guild */}
             <div className="space-y-2 col-span-2">
               <Label>Guild</Label>
               <Select
@@ -262,6 +253,8 @@ export default function EditProfilePage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Skills */}
             <div className="space-y-2 col-span-2">
               <Label>Skills</Label>
               <div className="flex flex-wrap gap-2">

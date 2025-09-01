@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // use the env variable
+
 export function useFetchSkillsAndGuilds() {
   const { isLoggedIn } = useAuth();
   const authFetch = useAuthFetch();
@@ -18,12 +20,8 @@ export function useFetchSkillsAndGuilds() {
       setLoading(true);
       try {
         const [skillRes, guildRes] = await Promise.all([
-          authFetch("http://localhost:8000/api/skills/", {
-            cache: "no-store",
-          }),
-          authFetch("http://localhost:8000/api/guilds/", {
-            cache: "no-store",
-          }),
+          authFetch(`${API_BASE_URL}/skills/`, { cache: "no-store" }),
+          authFetch(`${API_BASE_URL}/guilds/`, { cache: "no-store" }),
         ]);
 
         if (skillRes.ok) {
