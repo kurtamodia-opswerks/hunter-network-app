@@ -1,7 +1,7 @@
 import { cache, useState } from "react";
 import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import GuildForm from "@/components/guild/GuildForm";
+import GuildForm from "@/components/guild/admin/GuildForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

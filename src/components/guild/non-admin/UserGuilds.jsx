@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import GuildCard from "@/components/guild/GuildCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import LeaderGuildButton from "@/components/guild/LeaderGuildButton";
+import LeaderGuildButton from "@/components/guild/non-admin/LeaderGuildButton";
 
 export default function UserGuilds({
   guilds,

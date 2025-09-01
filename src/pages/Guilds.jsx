@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
-import AdminGuilds from "@/components/guild/AdminGuilds";
-import UserGuilds from "@/components/guild/UserGuilds";
+import AdminGuilds from "@/components/guild/admin/AdminGuilds";
+import UserGuilds from "@/components/guild/non-admin/UserGuilds";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 
 export default function Guilds() {

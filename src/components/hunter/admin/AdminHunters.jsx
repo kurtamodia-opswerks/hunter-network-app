@@ -1,5 +1,5 @@
 import { useState } from "react";
-import EditHunterForm from "@/components/hunter/EditHunterForm";
+import EditHunterForm from "@/components/hunter/admin/EditHunterForm";
 import { Button } from "@/components/ui/button";
 import {
   Table,

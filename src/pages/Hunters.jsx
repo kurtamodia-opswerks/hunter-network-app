@@ -1,8 +1,8 @@
 // Hunters.jsx
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import AdminHunters from "@/components/hunter/AdminHunters";
-import UserHunters from "@/components/hunter/UserHunters";
+import AdminHunters from "@/components/hunter/admin/AdminHunters";
+import UserHunters from "@/components/hunter/non-admin/UserHunters";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
 

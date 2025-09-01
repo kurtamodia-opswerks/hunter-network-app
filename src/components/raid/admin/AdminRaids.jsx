@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import RaidCard from "@/components/raid/RaidCard";
-import RaidForm from "@/components/raid/RaidForm";
+import RaidForm from "@/components/raid/admin/RaidForm";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import {

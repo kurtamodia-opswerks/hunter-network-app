@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
-import AdminRaids from "@/components/raid/AdminRaids";
-import UserRaids from "@/components/raid/UserRaids";
+import AdminRaids from "@/components/raid/admin/AdminRaids";
+import UserRaids from "@/components/raid/non-admin/UserRaids";
 import { useState, useEffect } from "react";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";

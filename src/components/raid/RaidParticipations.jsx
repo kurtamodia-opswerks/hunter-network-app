@@ -9,7 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Users, Plus, SquarePen, Trash } from "lucide-react";
-import RaidParticipationForm from "./RaidParticipationForm";
+import RaidParticipationForm from "./admin/RaidParticipationForm";
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { toast } from "sonner";
 
