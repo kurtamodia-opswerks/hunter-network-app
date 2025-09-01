@@ -1,4 +1,3 @@
-import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import DungeonCard from "@/components/dungeon/DungeonCard";
@@ -20,10 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useDungeonsApi } from "@/api/dungeonsApi";
 
 export default function Dungeons() {
-  const authFetch = useAuthFetch();
   const { isLoggedIn, user } = useAuth();
+  const { getDungeons, deleteDungeon } = useDungeonsApi();
+
   const [dungeons, setDungeons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingDungeon, setEditingDungeon] = useState(null);
@@ -36,41 +37,27 @@ export default function Dungeons() {
   const [search, setSearch] = useState("");
   const [ordering, setOrdering] = useState("");
 
-  const loadDungeons = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (ordering) params.append("ordering", ordering);
-
-      const response = await authFetch(
-        `http://localhost:8000/api/dungeons/?${params.toString()}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setDungeons(data);
-      } else {
-        console.error("Failed to load dungeons");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
-    if (isLoggedIn) loadDungeons();
+    if (!isLoggedIn) return;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await getDungeons({ search, ordering });
+        setDungeons(data);
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false);
+    };
+    load();
   }, [isLoggedIn, search, ordering]);
 
   const handleDelete = async (id) => {
-    const response = await authFetch(
-      `http://localhost:8000/api/dungeons/${id}/`,
-      { method: "DELETE" }
-    );
-    if (response.ok) {
+    try {
+      await deleteDungeon(id);
       setDungeons((prev) => prev.filter((d) => d.id !== id));
       toast.success("Dungeon deleted successfully");
-    } else {
+    } catch {
       toast.error("Failed to delete dungeon");
     }
     setDeletingDungeon(null);

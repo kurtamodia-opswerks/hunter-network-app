@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDungeonsApi } from "@/api/dungeonsApi";
 
 export default function DungeonForm({
   mode = "create",
@@ -19,7 +19,7 @@ export default function DungeonForm({
   onClose,
   onSaved,
 }) {
-  const authFetch = useAuthFetch();
+  const { createDungeon, updateDungeon } = useDungeonsApi();
 
   const [name, setName] = useState(dungeon?.name || "");
   const [rank, setRank] = useState(dungeon?.rank || "E");
@@ -31,29 +31,19 @@ export default function DungeonForm({
 
     const payload = { name, rank, location, is_open: isOpen };
 
-    const url =
-      mode === "edit"
-        ? `http://localhost:8000/api/dungeons/${dungeon.id}/`
-        : "http://localhost:8000/api/dungeons/";
-
-    const method = mode === "edit" ? "PUT" : "POST";
-
-    const response = await authFetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      const savedDungeon = await response.json();
-      onSaved(savedDungeon);
-      toast.success(
-        mode === "edit"
-          ? "Dungeon updated successfully!"
-          : "Dungeon created successfully!"
-      );
+    try {
+      let saved;
+      if (mode === "edit") {
+        saved = await updateDungeon(dungeon.id, payload);
+        toast.success("Dungeon updated successfully!");
+      } else {
+        saved = await createDungeon(payload);
+        toast.success("Dungeon created successfully!");
+      }
+      onSaved(saved);
       onClose();
-    } else {
+    } catch (err) {
+      console.error(err);
       toast.error(`Failed to ${mode === "edit" ? "update" : "create"} dungeon`);
     }
   };
