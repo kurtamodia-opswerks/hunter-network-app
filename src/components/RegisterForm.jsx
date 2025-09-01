@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useHuntersApi } from "@/api/huntersApi";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const { registerHunter } = useHuntersApi();
   const [formData, setFormData] = useState({
     email: "",
     first_name: "",
@@ -33,23 +35,12 @@ export default function RegisterForm() {
     e.preventDefault();
     try {
       console.log("Sending data:", formData);
-      const response = await fetch("http://localhost:8000/api/hunters/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to register user");
-      }
-
-      const data = await response.json();
+      const data = await registerHunter(formData);
       console.log("User registered:", data);
 
-      // Show success toast
       toast.success("Registered Successfully!");
 
-      // Redirect after 2 seconds
       setTimeout(() => {
         navigate("/");
       }, 2000);

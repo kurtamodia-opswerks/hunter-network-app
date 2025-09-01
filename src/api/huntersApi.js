@@ -38,5 +38,16 @@ export function useHuntersApi() {
     return true;
   };
 
-  return { getHunters, getHunter, updateHunter, deleteHunter };
+  // ✅ New: register a hunter
+  const registerHunter = async (data) => {
+    const res = await fetch("http://localhost:8000/api/hunters/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to register hunter");
+    return res.json();
+  };
+
+  return { getHunters, getHunter, updateHunter, deleteHunter, registerHunter };
 }
