@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { Users, Plus, SquarePen, Trash } from "lucide-react";
 import RaidParticipationForm from "./admin/RaidParticipationForm";
-import { useAuthFetch } from "../../hooks/useAuthFetch";
+import { useRaidsApi } from "@/api/raidsApi";
 import { toast } from "sonner";
 
 export default function RaidParticipations({
@@ -21,20 +21,14 @@ export default function RaidParticipations({
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingParticipation, setEditingParticipation] = useState(null);
-  const authFetch = useAuthFetch();
+
+  const { deleteParticipation } = useRaidsApi();
 
   const handleDelete = async (id) => {
     try {
-      const res = await authFetch(
-        `http://localhost:8000/api/raid-participations/${id}/`,
-        { method: "DELETE" }
-      );
-      if (res.ok) {
-        setParticipations((prev) => prev.filter((p) => p.id !== id));
-        toast.success("Participation deleted");
-      } else {
-        toast.error("Failed to delete participation");
-      }
+      await deleteParticipation(id);
+      setParticipations((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Participation deleted");
     } catch (err) {
       console.error(err);
       toast.error("Error deleting participation");

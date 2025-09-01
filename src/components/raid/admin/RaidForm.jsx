@@ -1,5 +1,6 @@
+// src/components/raid/RaidForm.jsx
 import { useState, useEffect } from "react";
-import { useAuthFetch } from "../../../hooks/useAuthFetch";
+import { useRaidsApi } from "@/api/raidsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/select";
 
 export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
-  const authFetch = useAuthFetch();
+  const { createRaid, updateRaid, getDungeons } = useRaidsApi();
 
   // Raid fields
   const [name, setName] = useState(raid?.name || "");
@@ -23,7 +24,6 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
 
   // Dropdown data
   const [dungeons, setDungeons] = useState([]);
-  const [hunters, setHunters] = useState([]);
 
   // Participation state
   const [selectedHunter, setSelectedHunter] = useState("");
@@ -33,14 +33,15 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
   useEffect(() => {
     const fetchDungeons = async () => {
       try {
-        const res = await authFetch("http://localhost:8000/api/dungeons/");
-        if (res.ok) setDungeons(await res.json());
+        const data = await getDungeons();
+        setDungeons(data);
       } catch (err) {
         console.error("Failed to fetch dungeons:", err);
+        toast.error("Failed to load dungeons");
       }
     };
     fetchDungeons();
-  }, []);
+  }, [getDungeons]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,21 +56,12 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
         : [],
     };
 
-    const url =
-      mode === "edit"
-        ? `http://localhost:8000/api/raids/${raid.id}/`
-        : "http://localhost:8000/api/raids/";
+    try {
+      const savedRaid =
+        mode === "edit"
+          ? await updateRaid(raid.id, payload)
+          : await createRaid(payload);
 
-    const method = mode === "edit" ? "PUT" : "POST";
-
-    const response = await authFetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      const savedRaid = await response.json();
       onSaved(savedRaid);
       toast.success(
         mode === "edit"
@@ -77,7 +69,8 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
           : "Raid created successfully!"
       );
       onClose();
-    } else {
+    } catch (err) {
+      console.error(err);
       toast.error(`Failed to ${mode === "edit" ? "update" : "create"} raid`);
     }
   };

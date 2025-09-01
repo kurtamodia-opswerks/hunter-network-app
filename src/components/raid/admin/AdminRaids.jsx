@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { toast } from "sonner";
-
 import RaidCard from "@/components/raid/RaidCard";
 import RaidForm from "@/components/raid/admin/RaidForm";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
@@ -19,6 +18,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { useRaidsApi } from "@/api/raidsApi";
 
 export default function AdminRaids({
   raids,
@@ -28,24 +28,24 @@ export default function AdminRaids({
   setSearch,
   ordering,
   setOrdering,
-  authFetch,
 }) {
   const [editingRaid, setEditingRaid] = useState(null);
   const [creatingRaid, setCreatingRaid] = useState(false);
   const [deletingRaid, setDeletingRaid] = useState(null);
 
+  const { deleteRaid } = useRaidsApi();
+
   const handleDelete = async (raidId) => {
-    const response = await authFetch(
-      `http://localhost:8000/api/raids/${raidId}/`,
-      { method: "DELETE" }
-    );
-    if (response.ok) {
+    try {
+      await deleteRaid(raidId);
       setRaids((prev) => prev.filter((r) => r.id !== raidId));
       toast.success("Raid deleted successfully");
-    } else {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to delete raid");
+    } finally {
+      setDeletingRaid(null);
     }
-    setDeletingRaid(null);
   };
 
   return (

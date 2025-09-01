@@ -1,8 +1,8 @@
-// RaidCard.jsx
+// src/components/raid/RaidCard.jsx
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useRaidsApi } from "@/api/raidsApi";
 import { toast } from "sonner";
 import RaidHeader from "./RaidHeader";
 import RaidInfo from "./RaidInfo";
@@ -18,7 +18,7 @@ export default function RaidCard({
   readOnly = false,
 }) {
   const { user } = useAuth();
-  const authFetch = useAuthFetch();
+  const { createParticipation, deleteParticipation } = useRaidsApi();
 
   const [participations, setParticipations] = useState(
     raid.participations_info || []
@@ -33,56 +33,41 @@ export default function RaidCard({
     if (!user) return toast.error("You must be logged in to join a raid.");
     setLoadingAction(true);
     try {
-      const response = await authFetch(
-        "http://localhost:8000/api/raid-participations/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            raid: raid.id,
-            hunter: user.user_id,
-            role: "DPS",
-          }),
-        }
-      );
+      const newParticipation = await createParticipation({
+        raid: raid.id,
+        hunter: user.user_id,
+        role: "DPS",
+      });
 
-      if (response.ok) {
-        const newParticipation = await response.json();
-        setParticipations((prev) => [...prev, newParticipation]);
-        toast.success("You joined the raid!");
-      } else if (response.status === 400) {
+      setParticipations((prev) => [...prev, newParticipation]);
+      toast.success("You joined the raid!");
+    } catch (err) {
+      if (err.message.includes("400")) {
         toast.error("You have already joined this raid.");
       } else {
         toast.error("Failed to join the raid.");
       }
-    } catch (err) {
       console.error(err);
-      toast.error("An error occurred while joining.");
+    } finally {
+      setLoadingAction(false);
     }
-    setLoadingAction(false);
   };
 
   const handleLeaveRaid = async () => {
     if (!userParticipation) return;
     setLoadingAction(true);
     try {
-      const response = await authFetch(
-        `http://localhost:8000/api/raid-participations/${userParticipation.id}/`,
-        { method: "DELETE" }
+      await deleteParticipation(userParticipation.id);
+      setParticipations((prev) =>
+        prev.filter((p) => p.id !== userParticipation.id)
       );
-      if (response.ok) {
-        setParticipations((prev) =>
-          prev.filter((p) => p.id !== userParticipation.id)
-        );
-        toast.success("You left the raid.");
-      } else {
-        toast.error("Failed to leave the raid.");
-      }
+      toast.success("You left the raid.");
     } catch (err) {
+      toast.error("Failed to leave the raid.");
       console.error(err);
-      toast.error("An error occurred while leaving.");
+    } finally {
+      setLoadingAction(false);
     }
-    setLoadingAction(false);
   };
 
   return (

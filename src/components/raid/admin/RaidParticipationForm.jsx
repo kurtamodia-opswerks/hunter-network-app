@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { useAuthFetch } from "../../../hooks/useAuthFetch";
+// src/components/raid/RaidParticipationForm.jsx
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,48 +10,48 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useRaidsApi } from "@/api/raidsApi";
 
 export default function RaidParticipationForm({
   raidId,
   participation,
-  participations = [], // pass the current participations as a prop
+  participations = [], // existing participations in the raid
   onClose,
   onAdded,
   onUpdated,
 }) {
-  const authFetch = useAuthFetch();
+  const { getHunters, createParticipation, updateParticipation } =
+    useRaidsApi();
+
   const [hunters, setHunters] = useState([]);
   const [selectedHunter, setSelectedHunter] = useState(
     participation ? String(participation.hunter_id) : ""
   );
   const [role, setRole] = useState(participation ? participation.role : "Tank");
 
-  // Fetch all hunters
+  // Fetch hunters and filter out ones already in the raid
   useEffect(() => {
     const fetchHunters = async () => {
       try {
-        const res = await authFetch("http://localhost:8000/api/hunters/");
-        if (res.ok) {
-          const allHunters = await res.json();
+        const allHunters = await getHunters();
 
-          // Exclude hunters already in this raid
-          const filteredHunters = allHunters.filter(
-            (h) =>
-              !participations.some(
-                (p) =>
-                  p.hunter_id === h.id &&
-                  (!participation || p.id !== participation.id)
-              )
-          );
+        const filtered = allHunters.filter(
+          (h) =>
+            !participations.some(
+              (p) =>
+                p.hunter_id === h.id &&
+                (!participation || p.id !== participation.id)
+            )
+        );
 
-          setHunters(filteredHunters);
-        }
+        setHunters(filtered);
       } catch (err) {
         console.error("Failed to fetch hunters:", err);
+        toast.error("Failed to load hunters");
       }
     };
     fetchHunters();
-  }, [participations, participation]);
+  }, [getHunters, participations, participation]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,31 +62,19 @@ export default function RaidParticipationForm({
       role,
     };
 
-    let url = "http://localhost:8000/api/raid-participations/";
-    let method = "POST";
-
-    if (participation) {
-      url += `${participation.id}/`;
-      method = "PUT";
-    }
-
-    const res = await authFetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
+    try {
       if (participation) {
+        const updated = await updateParticipation(participation.id, payload);
         toast.success("Participation updated successfully!");
-        onUpdated(data);
+        onUpdated(updated);
       } else {
+        const created = await createParticipation(payload);
         toast.success("Participation added successfully!");
-        onAdded(data);
+        onAdded(created);
       }
       onClose();
-    } else {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to save participation");
     }
   };
