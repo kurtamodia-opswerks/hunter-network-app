@@ -132,8 +132,8 @@ export default function RaidForm({ mode = "create", raid, onClose, onSaved }) {
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="true">Success</SelectItem>
-            <SelectItem value="false">Failed</SelectItem>
+            <SelectItem value="true">Yes</SelectItem>
+            <SelectItem value="false">No</SelectItem>
           </SelectContent>
         </Select>
       </div>
