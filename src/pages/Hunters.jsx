@@ -4,16 +4,16 @@ import { useAuth } from "@/context/AuthContext";
 import AdminHunters from "@/components/hunter/AdminHunters";
 import UserHunters from "@/components/hunter/UserHunters";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
 
 export default function Hunters() {
   const { user, isLoggedIn } = useAuth();
   const isAdmin = user?.is_admin || false;
   const authFetch = useAuthFetch();
+  const { skills, guilds } = useFetchSkillsAndGuilds();
 
   // Shared state
   const [hunters, setHunters] = useState([]);
-  const [skills, setSkills] = useState([]); // ✅ centralize skills
-  const [guilds, setGuilds] = useState([]); // ✅ centralize guilds
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [ordering, setOrdering] = useState(
@@ -47,39 +47,6 @@ export default function Hunters() {
     loadHunters();
   }, [search, ordering, rank, isAdmin, isLoggedIn]);
 
-  // Fetch skills and guilds once
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const fetchOptions = async () => {
-      try {
-        const skillRes = await authFetch("http://localhost:8000/api/skills/");
-        if (skillRes.ok) {
-          const skillsData = await skillRes.json();
-          setSkills(skillsData);
-        }
-
-        const guildRes = await authFetch("http://localhost:8000/api/guilds/");
-        if (guildRes.ok) {
-          const guildsData = await guildRes.json();
-          setGuilds(guildsData);
-        }
-      } catch (err) {
-        console.error("Error fetching skills/guilds:", err);
-      }
-    };
-
-    fetchOptions();
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    console.log("Updated skills:", skills);
-  }, [skills]);
-
-  useEffect(() => {
-    console.log("Updated guilds:", guilds);
-  }, [guilds]);
-
   if (!isLoggedIn) {
     return (
       <div className="text-center mt-20">
@@ -98,8 +65,8 @@ export default function Hunters() {
       setSearch={setSearch}
       ordering={ordering}
       setOrdering={setOrdering}
-      skills={skills} // ✅ pass down
-      guilds={guilds} // ✅ pass down
+      skills={skills}
+      guilds={guilds}
     />
   ) : (
     <UserHunters
@@ -109,8 +76,8 @@ export default function Hunters() {
       setSearch={setSearch}
       rank={rank}
       setRank={setRank}
-      skills={skills} // ✅ pass down
-      guilds={guilds} // ✅ pass down
+      skills={skills}
+      guilds={guilds}
     />
   );
 }

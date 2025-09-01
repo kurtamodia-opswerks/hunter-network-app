@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useFetchSkillsAndGuilds } from "@/hooks/useFetchSkillsAndGuilds";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { toast } from "sonner";
 import {
@@ -20,8 +20,9 @@ export default function HunterPage() {
   const authFetch = useAuthFetch();
 
   const [hunter, setHunter] = useState(null);
-  const [skillsMap, setSkillsMap] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const { skills } = useFetchSkillsAndGuilds();
 
   useEffect(() => {
     const loadHunter = async () => {
@@ -33,14 +34,6 @@ export default function HunterPage() {
         if (!res.ok) throw new Error("Failed to load hunter");
         const data = await res.json();
         setHunter(data);
-
-        const skillRes = await authFetch("http://localhost:8000/api/skills/");
-        if (skillRes.ok) {
-          const skills = await skillRes.json();
-          const map = {};
-          skills.forEach((s) => (map[s.id] = s.name));
-          setSkillsMap(map);
-        }
       } catch (err) {
         console.error(err);
         toast.error("Error loading hunter");
@@ -55,9 +48,11 @@ export default function HunterPage() {
   if (loading) return <p className="text-center mt-20">Loading hunter...</p>;
   if (!hunter) return <p className="text-center mt-20">Hunter not found.</p>;
 
+  const skillMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
+
   const skillNames =
     hunter.skills?.length > 0
-      ? hunter.skills.map((id) => skillsMap[id] || `Skill ${id}`).join(", ")
+      ? hunter.skills.map((id) => skillMap[id] || `Skill ${id}`).join(", ")
       : "None";
 
   return (
