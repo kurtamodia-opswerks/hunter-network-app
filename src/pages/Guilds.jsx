@@ -22,8 +22,7 @@ export default function Guilds() {
       if (ordering) params.append("ordering", ordering);
 
       const response = await authFetch(
-        `http://localhost:8000/api/guilds/?${params.toString()}`,
-        { cache: "no-store" }
+        `http://localhost:8000/api/guilds/?${params.toString()}`
       );
 
       if (response.ok) {

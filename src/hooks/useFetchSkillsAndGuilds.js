@@ -18,8 +18,12 @@ export function useFetchSkillsAndGuilds() {
       setLoading(true);
       try {
         const [skillRes, guildRes] = await Promise.all([
-          authFetch("http://localhost:8000/api/skills/"),
-          authFetch("http://localhost:8000/api/guilds/"),
+          authFetch("http://localhost:8000/api/skills/", {
+            cache: "no-store",
+          }),
+          authFetch("http://localhost:8000/api/guilds/", {
+            cache: "no-store",
+          }),
         ]);
 
         if (skillRes.ok) {
