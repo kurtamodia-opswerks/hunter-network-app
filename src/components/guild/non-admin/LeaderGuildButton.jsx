@@ -35,7 +35,7 @@ export default function LeaderGuildButton() {
     };
 
     fetchGuildIfLeader();
-  }, [user, getGuildsByLeader]);
+  }, [user]);
 
   if (!user?.is_leader || (!guildId && !loading)) return null;
 
