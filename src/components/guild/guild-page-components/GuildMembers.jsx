@@ -7,16 +7,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Trash, Plus } from "lucide-react";
+import { useHuntersApi } from "@/api/huntersApi";
+import { toast } from "sonner";
 import GuildMemberSheet from "./GuildMemberSheet";
 
-export default function GuildMembers({
-  guild,
-  user,
-  isAdmin,
-  setGuild,
-  authFetch,
-}) {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export default function GuildMembers({ guild, user, isAdmin, setGuild }) {
   const [showAddMember, setShowAddMember] = useState(false);
+  const { deleteHunter } = useHuntersApi();
 
   const canManage =
     isAdmin || guild?.leader_display?.id === Number(user?.user_id);
@@ -25,27 +24,17 @@ export default function GuildMembers({
     if (!confirm("Are you sure you want to remove this member?")) return;
 
     try {
-      const res = await authFetch(
-        `http://localhost:8000/api/hunters/${memberId}/`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ guild: null }),
-        }
-      );
+      await deleteHunter(memberId, { guild: null });
 
-      if (res.ok) {
-        setGuild((prev) => ({
-          ...prev,
-          members: prev.members.filter((m) => m.id !== memberId),
-          member_count: prev.members.length - 1,
-        }));
-      } else {
-        alert("Failed to remove member.");
-      }
+      setGuild((prev) => ({
+        ...prev,
+        members: prev.members.filter((m) => m.id !== memberId),
+        member_count: prev.members.length - 1,
+      }));
+      toast.success("Member removed successfully");
     } catch (err) {
       console.error(err);
-      alert("Error removing member.");
+      toast.error("Error removing member");
     }
   };
 

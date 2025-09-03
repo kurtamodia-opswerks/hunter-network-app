@@ -30,9 +30,10 @@ export default function AdminGuilds({
   setOrdering,
 }) {
   const { deleteGuild } = useGuildsApi();
-  const [editingGuild, setEditingGuild] = useState(null);
-  const [creatingGuild, setCreatingGuild] = useState(false);
-  const [deletingGuild, setDeletingGuild] = useState(null);
+
+  const [editingGuildId, setEditingGuildId] = useState(null);
+  const [isCreatingGuild, setIsCreatingGuild] = useState(false);
+  const [deletingGuildId, setDeletingGuildId] = useState(null);
 
   const handleDelete = async (guildId) => {
     try {
@@ -43,12 +44,12 @@ export default function AdminGuilds({
       console.error(err);
       toast.error("Failed to delete guild");
     }
-    setDeletingGuild(null);
+    setDeletingGuildId(null); // Fixed: was setDeletingGuild
   };
 
   return (
     <div className="space-y-4 max-w-6xl mx-auto">
-      <Button onClick={() => setCreatingGuild(true)}>+ Create Guild</Button>
+      <Button onClick={() => setIsCreatingGuild(true)}>+ Create Guild</Button>
 
       {/* Search & Sort */}
       <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 mb-4">
@@ -81,19 +82,19 @@ export default function AdminGuilds({
                 key={guild.id}
                 guild={guild}
                 isAdmin={true}
-                onEdit={setEditingGuild}
+                onEdit={setEditingGuildId}
                 onDelete={handleDelete}
-                deletingGuild={deletingGuild}
-                setDeletingGuild={setDeletingGuild}
+                deletingGuildId={deletingGuildId} // Fixed: was deletingGuild
+                setDeletingGuildId={setDeletingGuildId} // Fixed: was setDeletingGuild
               />
             ))}
       </div>
 
       {/* Edit Guild Modal */}
-      {editingGuild && (
+      {editingGuildId && (
         <Dialog
-          open={!!editingGuild}
-          onOpenChange={() => setEditingGuild(null)}
+          open={!!editingGuildId}
+          onOpenChange={() => setEditingGuildId(null)}
         >
           <DialogContent>
             <DialogHeader>
@@ -101,8 +102,8 @@ export default function AdminGuilds({
             </DialogHeader>
             <GuildForm
               mode="edit"
-              guild={editingGuild}
-              onClose={() => setEditingGuild(null)}
+              guild={editingGuildId}
+              onClose={() => setEditingGuildId(null)}
               onSaved={(updated) =>
                 setGuilds((prev) =>
                   prev.map((g) => (g.id === updated.id ? updated : g))
@@ -114,10 +115,10 @@ export default function AdminGuilds({
       )}
 
       {/* Create Guild Modal */}
-      {creatingGuild && (
+      {isCreatingGuild && ( // Fixed: was creatingGuild
         <Dialog
-          open={creatingGuild}
-          onOpenChange={() => setCreatingGuild(false)}
+          open={isCreatingGuild} // Fixed: was creatingGuild
+          onOpenChange={() => setIsCreatingGuild(false)} // Fixed: was setCreatingGuild
         >
           <DialogContent>
             <DialogHeader>
@@ -125,7 +126,7 @@ export default function AdminGuilds({
             </DialogHeader>
             <GuildForm
               mode="create"
-              onClose={() => setCreatingGuild(false)}
+              onClose={() => setIsCreatingGuild(false)} // Fixed: was setCreatingGuild
               onSaved={(newGuild) => setGuilds((prev) => [...prev, newGuild])}
             />
           </DialogContent>

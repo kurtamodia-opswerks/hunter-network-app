@@ -19,7 +19,7 @@ export function useFetchSkillsAndGuilds() {
     const fetchOptions = async () => {
       setLoading(true);
       try {
-        const [skillRes, guildRes] = await Promise.all([
+        const [skillRes, guildRes] = await Promise.all_settled([
           authFetch(`${API_BASE_URL}/skills/`, { cache: "no-store" }),
           authFetch(`${API_BASE_URL}/guilds/`, { cache: "no-store" }),
         ]);
