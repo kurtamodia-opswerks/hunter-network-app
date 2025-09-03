@@ -12,6 +12,17 @@ import { Users, Plus, SquarePen, Trash } from "lucide-react";
 import RaidParticipationForm from "./admin/RaidParticipationForm";
 import { useRaidsApi } from "@/api/raidsApi";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function RaidParticipations({
   participations,
@@ -21,6 +32,7 @@ export default function RaidParticipations({
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingParticipation, setEditingParticipation] = useState(null);
+  const [deletingParticipation, setDeletingParticipation] = useState(null);
 
   const { deleteParticipation } = useRaidsApi();
 
@@ -32,6 +44,8 @@ export default function RaidParticipations({
     } catch (err) {
       console.error(err);
       toast.error("Error deleting participation");
+    } finally {
+      setDeletingParticipation(null);
     }
   };
 
@@ -68,13 +82,39 @@ export default function RaidParticipations({
                       >
                         <SquarePen className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(h.id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
+
+                      {/* Delete Confirmation Modal */}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => setDeletingParticipation(h)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete Participation
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to remove{" "}
+                              <strong>{h.full_name}</strong> from this raid?
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(h.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   )}
                 </li>
@@ -90,7 +130,7 @@ export default function RaidParticipations({
         ) : (
           <RaidParticipationForm
             raidId={raidId}
-            participation={editingParticipation} // pass if editing
+            participation={editingParticipation}
             participations={participations}
             onClose={() => {
               setShowAddForm(false);
